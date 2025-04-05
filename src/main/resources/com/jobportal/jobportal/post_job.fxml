@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.jobportal.controllers.PostJobController"
+           stylesheets="@styles.css"
+           styleClass="root-pane">
+
+    <VBox spacing="20" alignment="CENTER" styleClass="dashboard-content">
+        <Text text="Post a Job" styleClass="dashboard-title"/>
+        <GridPane hgap="15" vgap="15" alignment="CENTER">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="300.0"/>
+            </columnConstraints>
+
+            <!-- Job Title -->
+            <Label text="Job Title:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="titleField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <!-- Company -->
+            <Label text="Company:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="companyField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <!-- Location -->
+            <Label text="Location:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <TextField fx:id="locationField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <!-- Description -->
+            <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <TextArea fx:id="descriptionField" GridPane.columnIndex="1" GridPane.rowIndex="3" prefRowCount="5"/>
+        </GridPane>
+
+        <Button text="Post Job" onAction="#handlePostJob" styleClass="primary-button"/>
+        <Button text="Back to Dashboard" onAction="#goToDashboard" styleClass="button-secondary"/>
+    </VBox>
+</AnchorPane>

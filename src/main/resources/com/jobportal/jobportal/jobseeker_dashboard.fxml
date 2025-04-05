@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.jobportal.controllers.JobSeekerDashboardController"
+            prefHeight="800.0" prefWidth="1000.0"
+            stylesheets="@dashboard.css">
+    
+    <!-- Top Header Bar -->
+    <top>
+        <HBox styleClass="header-container" alignment="CENTER_LEFT" spacing="15">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Label text="Job Portal" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS" />
+            <TextField fx:id="searchField" promptText="Search jobs..." styleClass="search-box" prefWidth="250"/>
+            <Button styleClass="notification-badge" text="3"/>
+            <Button fx:id="logoutButton" onAction="#handleLogout" text="Logout" styleClass="logout-button"/>
+        </HBox>
+    </top>
+    
+    <!-- Left Sidebar -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="200" spacing="10" alignment="TOP_CENTER">
+            <VBox alignment="CENTER" spacing="10">
+                <ImageView fitHeight="80.0" fitWidth="80.0" styleClass="profile-circle">
+                    <Image url="@../../images/default_avatar.png"/>
+                </ImageView>
+                <Text fx:id="welcomeText" text="Welcome, User" style="-fx-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <Label fx:id="userEmailLabel" text="user@example.com" style="-fx-text-fill: #bdc3c7; -fx-font-size: 12px;"/>
+                <Separator/>
+            </VBox>
+            
+            <Button text="Dashboard" styleClass="sidebar-btn, sidebar-btn-active" onAction="#navigateToDashboard" maxWidth="Infinity"/>
+            <Button text="My Profile" styleClass="sidebar-btn" onAction="#navigateToProfile" maxWidth="Infinity"/>
+            <Button text="My Applications" styleClass="sidebar-btn" onAction="#navigateToApplications" maxWidth="Infinity"/>
+            <Button text="Messages" styleClass="sidebar-btn" onAction="#navigateToMessages" maxWidth="Infinity"/>
+            <Button text="Saved Jobs" styleClass="sidebar-btn" onAction="#navigateToSavedJobs" maxWidth="Infinity"/>
+            
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button text="Settings" styleClass="sidebar-btn" onAction="#navigateToSettings" maxWidth="Infinity"/>
+            <Button text="Logout" styleClass="sidebar-btn" onAction="#handleLogout" maxWidth="Infinity"/>
+        </VBox>
+    </left>
+    
+    <!-- Main Content Area -->
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox styleClass="content-area" spacing="20">
+                <Label text="Welcome back!" styleClass="section-title"/>
+                
+                <!-- Stats Cards -->
+                <HBox spacing="15">
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Applied Jobs" style="-fx-font-weight: bold;"/>
+                        <Label fx:id="jobsAppliedCount" text="0" style="-fx-font-size: 24px;"/>
+                    </VBox>
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Interviews" style="-fx-font-weight: bold;"/>
+                        <Label fx:id="interviewsCount" text="0" style="-fx-font-size: 24px;"/>
+                    </VBox>
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Offers" style="-fx-font-weight: bold;"/>
+                        <Label fx:id="offersCount" text="0" style="-fx-font-size: 24px;"/>
+                    </VBox>
+                </HBox>
+                
+                <!-- Job Search Section -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="filterComboBox" prefWidth="150" promptText="Filter By"/>
+                    <TextField fx:id="searchField" promptText="Search jobs..." HBox.hgrow="ALWAYS"/>
+                    <ComboBox fx:id="sortComboBox" prefWidth="150" promptText="Sort By"/>
+                    <Button text="Search" onAction="#handleSearch" styleClass="primary-button"/>
+                </HBox>
+                
+                <!-- Job Listings -->
+                <Label text="Job Listings" styleClass="section-title" style="-fx-font-size: 18px;"/>
+                <ListView fx:id="jobListView" VBox.vgrow="ALWAYS" styleClass="job-list-view" prefHeight="300"/>
+                
+                <!-- Action Buttons -->
+                <HBox spacing="10">
+                    <Button text="Apply for Selected Job" onAction="#handleApply" styleClass="primary-button"/>
+                    <Button text="Save Job" onAction="#handleSaveJob" styleClass="secondary-button"/>
+                    <Button text="View Job Details" onAction="#handleViewJobDetails" styleClass="secondary-button"/>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.jobportal.controllers.DashboardController"
+           stylesheets="@dashboard.css"
+           styleClass="root-pane">
+
+    <BorderPane maxWidth="800" maxHeight="600" styleClass="dashboard-page">
+        <top>
+            <HBox alignment="CENTER" styleClass="header-section">
+                <padding>
+                    <Insets top="20" bottom="20" left="20" right="20"/>
+                </padding>
+                <Text fx:id="welcomeText" text="Welcome to Job Portal Dashboard" styleClass="dashboard-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Logout" onAction="#handleLogout" styleClass="button-secondary"/>
+            </HBox>
+        </top>
+
+        <center>
+            <VBox alignment="CENTER" spacing="20" styleClass="dashboard-content">
+                <Label text="Please select an option below:" />
+                
+                <Button text="View Job Listings" onAction="#viewJobs" styleClass="primary-button" maxWidth="300"/>
+                <Button text="My Profile" onAction="#viewProfile" styleClass="primary-button" maxWidth="300"/>
+                <Button text="My Applications" onAction="#viewApplications" styleClass="primary-button" maxWidth="300"/>
+                
+                <!-- The ListView needs to be present in all dashboards to avoid NullPointerException -->
+                <ListView fx:id="jobListView" visible="false" managed="false" VBox.vgrow="NEVER" />
+            </VBox>
+        </center>
+
+        <bottom>
+            <HBox alignment="CENTER" styleClass="footer">
+                <padding>
+                    <Insets top="20" bottom="20"/>
+                </padding>
+                <Text text="© 2025 Job Portal. All rights reserved."/>
+            </HBox>
+        </bottom>
+    </BorderPane>
+</StackPane>

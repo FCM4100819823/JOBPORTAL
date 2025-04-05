@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.jobportal.controllers.NotificationsController"
+           stylesheets="@styles.css"
+           styleClass="root-pane">
+
+    <VBox spacing="20" alignment="CENTER" styleClass="dashboard-content">
+        <Text text="Notifications" styleClass="dashboard-title"/>
+        <ListView fx:id="notificationsListView" VBox.vgrow="ALWAYS" styleClass="job-list"/>
+        <Button text="Back to Dashboard" onAction="#goToDashboard" styleClass="button-secondary"/>
+    </VBox>
+</AnchorPane>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.jobportal.controllers.RegisterController"
+           stylesheets="@dashboard.css"
+           styleClass="root-pane">
+
+    <VBox alignment="CENTER" spacing="30" styleClass="register-container" maxWidth="800">
+        <Text text="Create an Account" styleClass="register-title"/>
+        <GridPane hgap="30" vgap="20" alignment="CENTER">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" prefWidth="300.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" prefWidth="300.0"/>
+            </columnConstraints>
+
+            <!-- Left Column -->
+            <VBox spacing="15" GridPane.columnIndex="0">
+                <Label text="Username *"/>
+                <TextField fx:id="usernameField" promptText="Enter username"/>
+
+                <Label text="Email *"/>
+                <TextField fx:id="emailField" promptText="Enter email"/>
+
+                <Label text="Password *"/>
+                <PasswordField fx:id="passwordField" promptText="Enter password"/>
+
+                <Label text="Confirm Password *"/>
+                <PasswordField fx:id="confirmPasswordField" promptText="Confirm password"/>
+            </VBox>
+
+            <!-- Right Column -->
+            <VBox spacing="15" GridPane.columnIndex="1">
+                <Label text="Full Name *"/>
+                <TextField fx:id="fullNameField" promptText="Enter full name"/>
+
+                <Label text="Phone"/>
+                <TextField fx:id="phoneField" promptText="Enter phone number"/>
+
+                <Label text="Location"/>
+                <TextField fx:id="locationField" promptText="Enter your location"/>
+
+                <Label text="I am a... *"/>
+                <ComboBox fx:id="roleComboBox" promptText="Select role"/>
+            </VBox>
+        </GridPane>
+
+        <VBox spacing="15">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <CheckBox fx:id="termsCheckbox"/>
+                <Label text="I agree to the Terms of Service and Privacy Policy"/>
+            </HBox>
+
+            <Button fx:id="registerButton" text="Create Account" onAction="#handleRegister" styleClass="primary-button" maxWidth="300"/>
+            <HBox alignment="CENTER" spacing="5">
+                <Label text="Already have an account?"/>
+                <Hyperlink text="Sign in" onAction="#goToLogin"/>
+            </HBox>
+        </VBox>
+
+        <Text fx:id="errorText" fill="#e74c3c" visible="false" styleClass="error-message"/>
+    </VBox>
+</StackPane>

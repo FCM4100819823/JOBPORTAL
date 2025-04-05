@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.jobportal.controllers.MyApplicationsController"
+           stylesheets="@styles.css"
+           styleClass="root-pane">
+
+    <VBox spacing="20" alignment="CENTER" styleClass="dashboard-content">
+        <Text text="My Applications" styleClass="dashboard-title"/>
+        
+        <!-- No applications message -->
+        <Text fx:id="noApplicationsText" text="You haven't applied to any jobs yet" 
+              styleClass="info-message" visible="false"/>
+        
+        <!-- Applications list -->
+        <ListView fx:id="applicationsListView" styleClass="job-list" VBox.vgrow="ALWAYS"/>
+        
+        <HBox spacing="15" alignment="CENTER">
+            <Button text="Refresh" onAction="#refreshApplications" styleClass="primary-button"/>
+            <Button text="Back to Dashboard" onAction="#goToDashboard" styleClass="button-secondary"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

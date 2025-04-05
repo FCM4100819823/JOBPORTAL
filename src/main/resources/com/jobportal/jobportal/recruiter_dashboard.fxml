@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.jobportal.controllers.RecruiterDashboardController"
+            prefHeight="800.0" prefWidth="1000.0"
+            stylesheets="@C:\Users\donko\Music\jobportal\src\main\resources\com\jobportal\jobportal\dashboard.css"
+            
+    <!-- Top Header Bar -->
+    <top>
+        <HBox styleClass="header-container" alignment="CENTER_LEFT" spacing="15">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Label text="Recruiter Portal" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS" />
+            <TextField fx:id="searchField" promptText="Search candidates..." styleClass="search-box" prefWidth="250"/>
+            <Button styleClass="notification-badge" text="7"/>
+            <Button fx:id="logoutButton" onAction="#handleLogout" text="Logout" styleClass="logout-button"/>
+        </HBox>
+    </top>
+    
+    <!-- Left Sidebar -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="200" spacing="10" alignment="TOP_CENTER">
+            <VBox alignment="CENTER" spacing="10">
+                <ImageView fitHeight="80.0" fitWidth="80.0" styleClass="profile-circle">
+                    <Image url="@../../images/default_avatar.png"/>
+                </ImageView>
+                <Label text="Recruiter Name" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <Label text="recruiter@example.com" style="-fx-text-fill: #bdc3c7; -fx-font-size: 12px;"/>
+                <Separator/>
+            </VBox>
+            
+            <Button text="Dashboard" styleClass="sidebar-btn, sidebar-btn-active" onAction="#navigateToDashboard" maxWidth="Infinity"/>
+            <Button text="Clients" styleClass="sidebar-btn" onAction="#navigateToClients" maxWidth="Infinity"/>
+            <Button text="Job Requisitions" styleClass="sidebar-btn" onAction="#navigateToJobRequisitions" maxWidth="Infinity"/>
+            <Button text="Candidate Database" styleClass="sidebar-btn" onAction="#navigateToCandidateDatabase" maxWidth="Infinity"/>
+            <Button text="Interviews" styleClass="sidebar-btn" onAction="#navigateToInterviews" maxWidth="Infinity"/>
+            <Button text="Messages" styleClass="sidebar-btn" onAction="#navigateToMessages" maxWidth="Infinity"/>
+            
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button text="Settings" styleClass="sidebar-btn" onAction="#navigateToSettings" maxWidth="Infinity"/>
+            <Button text="Logout" styleClass="sidebar-btn" onAction="#handleLogout" maxWidth="Infinity"/>
+        </VBox>
+    </left>
+    
+    <!-- Main Content Area -->
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox styleClass="content-area" spacing="20">
+                <Label text="Recruiter Dashboard" styleClass="section-title"/>
+                
+                <!-- Stats Cards -->
+                <HBox spacing="15">
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Active Requisitions" style="-fx-font-weight: bold;"/>
+                        <Label text="7" style="-fx-font-size: 24px;"/>
+                    </VBox>
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Candidates in Pipeline" style="-fx-font-weight: bold;"/>
+                        <Label text="28" style="-fx-font-size: 24px;"/>
+                    </VBox>
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Placements" style="-fx-font-weight: bold;"/>
+                        <Label text="3" style="-fx-font-size: 24px;"/>
+                    </VBox>
+                </HBox>
+                
+                <!-- Quick Actions -->
+                <HBox spacing="10">
+                    <Button text="Add Candidate" onAction="#addNewCandidate" styleClass="primary-button"/>
+                    <Button text="Schedule Interview" onAction="#scheduleInterview" styleClass="secondary-button"/>
+                    <Button text="Generate Reports" onAction="#generateReports" styleClass="secondary-button"/>
+                </HBox>
+                
+                <!-- Candidate Search -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="filterComboBox" prefWidth="150" promptText="Filter By"/>
+                    <TextField fx:id="searchField" promptText="Search candidates..." HBox.hgrow="ALWAYS"/>
+                    <Button text="Search" onAction="#handleSearch" styleClass="primary-button"/>
+                </HBox>
+                
+                <!-- Candidate Table -->
+                <Label text="Candidate Database" styleClass="section-title" style="-fx-font-size: 18px;"/>
+                <TableView fx:id="candidatesTableView" VBox.vgrow="ALWAYS" prefHeight="300">
+                    <columns>
+                        <TableColumn fx:id="nameColumn" text="Name" prefWidth="150"/>
+                        <TableColumn fx:id="skillsColumn" text="Skills" prefWidth="200"/>
+                        <TableColumn fx:id="experienceColumn" text="Experience" prefWidth="100"/>
+                        <TableColumn fx:id="locationColumn" text="Location" prefWidth="100"/>
+                        <TableColumn fx:id="statusColumn" text="Status" prefWidth="100"/>
+                        <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="150"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.jobportal.controllers.AnalyticsController"
+           stylesheets="@styles.css"
+           styleClass="root-pane">
+
+    <VBox spacing="20" alignment="CENTER" styleClass="dashboard-content">
+        <Text text="Analytics and Reports" styleClass="dashboard-title"/>
+        <PieChart fx:id="jobApplicationsChart" title="Job Applications by Status"/>
+        <BarChart fx:id="jobPostingsChart" title="Job Postings by Employer">
+            <xAxis>
+                <CategoryAxis label="Employers"/>
+            </xAxis>
+            <yAxis>
+                <NumberAxis label="Number of Jobs"/>
+            </yAxis>
+        </BarChart>
+        <Button text="Back to Dashboard" onAction="#goToDashboard" styleClass="button-secondary"/>
+    </VBox>
+</AnchorPane>
