@@ -1,5 +1,6 @@
 package com.jobportal.services;
 
+import com.jobportal.database.DatabaseConnection;
 import com.jobportal.models.Client;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
@@ -14,9 +15,12 @@ public class ClientService {
     private final MongoCollection<Document> collection;
 
     public ClientService() {
-        MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
-        MongoDatabase database = mongoClient.getDatabase("jobportal");
-        this.collection = database.getCollection("clients");
+        MongoDatabase database = DatabaseConnection.getDatabase();
+        if (database != null) {
+            this.collection = database.getCollection("clients");
+        } else {
+            throw new RuntimeException("Failed to connect to database");
+        }
     }
 
     public List<Client> getClientsByRecruiter(String recruiterEmail) {
@@ -38,39 +42,57 @@ public class ClientService {
         return doc != null ? documentToClient(doc) : null;
     }
 
-    public void addClient(Client client) {
-        Document doc = new Document()
-            .append("name", client.getName())
-            .append("industry", client.getIndustry())
-            .append("location", client.getLocation())
-            .append("recruiterEmail", client.getRecruiterEmail())
-            .append("contactPerson", client.getContactPerson())
-            .append("contactEmail", client.getContactEmail())
-            .append("phone", client.getPhone())
-            .append("createdAt", client.getCreatedAt())
-            .append("updatedAt", client.getUpdatedAt());
+    public boolean addClient(Client client) {
+        try {
+            Document doc = new Document()
+                .append("name", client.getName())
+                .append("industry", client.getIndustry())
+                .append("location", client.getLocation())
+                .append("recruiterEmail", client.getRecruiterEmail())
+                .append("contactPerson", client.getContactPerson())
+                .append("contactEmail", client.getContactEmail())
+                .append("phone", client.getPhone())
+                .append("createdAt", client.getCreatedAt())
+                .append("updatedAt", client.getUpdatedAt());
 
-        collection.insertOne(doc);
-        client.setId(doc.getObjectId("_id").toString());
+            collection.insertOne(doc);
+            client.setId(doc.getObjectId("_id").toString());
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error adding client: " + e.getMessage());
+            return false;
+        }
     }
 
-    public void updateClient(Client client) {
-        collection.updateOne(
-            Filters.eq("_id", new ObjectId(client.getId())),
-            Updates.combine(
-                Updates.set("name", client.getName()),
-                Updates.set("industry", client.getIndustry()),
-                Updates.set("location", client.getLocation()),
-                Updates.set("contactPerson", client.getContactPerson()),
-                Updates.set("contactEmail", client.getContactEmail()),
-                Updates.set("phone", client.getPhone()),
-                Updates.set("updatedAt", client.getUpdatedAt())
-            )
-        );
+    public boolean updateClient(Client client) {
+        try {
+            collection.updateOne(
+                Filters.eq("_id", new ObjectId(client.getId())),
+                Updates.combine(
+                    Updates.set("name", client.getName()),
+                    Updates.set("industry", client.getIndustry()),
+                    Updates.set("location", client.getLocation()),
+                    Updates.set("contactPerson", client.getContactPerson()),
+                    Updates.set("contactEmail", client.getContactEmail()),
+                    Updates.set("phone", client.getPhone()),
+                    Updates.set("updatedAt", client.getUpdatedAt())
+                )
+            );
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error updating client: " + e.getMessage());
+            return false;
+        }
     }
 
-    public void deleteClient(String id) {
-        collection.deleteOne(Filters.eq("_id", new ObjectId(id)));
+    public boolean deleteClient(String id) {
+        try {
+            collection.deleteOne(Filters.eq("_id", new ObjectId(id)));
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error deleting client: " + e.getMessage());
+            return false;
+        }
     }
 
     public List<Client> searchClients(String recruiterEmail, String searchTerm) {

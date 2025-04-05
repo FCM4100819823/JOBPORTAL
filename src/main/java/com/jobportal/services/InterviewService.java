@@ -1,24 +1,45 @@
 package com.jobportal.services;
 
+import com.jobportal.database.DatabaseConnection;
 import com.jobportal.models.Interview;
+import com.mongodb.client.*;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 public class InterviewService {
-    // In a real application, this would interact with a database
-    private static final List<Interview> interviews = new ArrayList<>();
+    private final MongoCollection<Document> collection;
+
+    public InterviewService() {
+        MongoDatabase database = DatabaseConnection.getDatabase();
+        if (database != null) {
+            this.collection = database.getCollection("interviews");
+        } else {
+            throw new RuntimeException("Failed to connect to database");
+        }
+    }
 
     public List<Interview> getInterviewsByRecruiter(String recruiterEmail) {
         if (recruiterEmail == null || recruiterEmail.isEmpty()) {
             throw new IllegalArgumentException("Recruiter email is required");
         }
 
-        // Filter interviews for the given recruiter
-        return interviews.stream()
-                .filter(interview -> interview.getRecruiterEmail().equals(recruiterEmail))
-                .toList();
+        List<Interview> interviews = new ArrayList<>();
+        FindIterable<Document> findIterable = collection.find(
+            Filters.eq("recruiterEmail", recruiterEmail)
+        );
+
+        for (Document doc : findIterable) {
+            interviews.add(documentToInterview(doc));
+        }
+        return interviews;
     }
 
     public boolean scheduleInterview(Interview interview) {
@@ -26,12 +47,24 @@ public class InterviewService {
             throw new IllegalArgumentException("Interview cannot be null");
         }
 
-        // Generate a unique ID for the interview
-        interview.setId(UUID.randomUUID().toString());
-        
-        // In a real application, this would save to a database
-        interviews.add(interview);
-        return true;
+        try {
+            Document doc = new Document()
+                .append("candidateName", interview.getCandidateName())
+                .append("candidateEmail", interview.getCandidateEmail())
+                .append("position", interview.getPosition())
+                .append("dateTime", Date.from(interview.getDateTime().atZone(ZoneId.systemDefault()).toInstant()))
+                .append("status", interview.getStatus())
+                .append("type", interview.getType())
+                .append("recruiterEmail", interview.getRecruiterEmail())
+                .append("notes", interview.getNotes());
+
+            collection.insertOne(doc);
+            interview.setId(doc.getObjectId("_id").toString());
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error scheduling interview: " + e.getMessage());
+            return false;
+        }
     }
 
     public boolean rescheduleInterview(String interviewId, LocalDateTime newDateTime) {
@@ -39,14 +72,16 @@ public class InterviewService {
             throw new IllegalArgumentException("Interview ID and new date/time are required");
         }
 
-        // Find and update the interview
-        for (Interview interview : interviews) {
-            if (interview.getId().equals(interviewId)) {
-                interview.setDateTime(newDateTime);
-                return true;
-            }
+        try {
+            collection.updateOne(
+                Filters.eq("_id", new ObjectId(interviewId)),
+                Updates.set("dateTime", Date.from(newDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+            );
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error rescheduling interview: " + e.getMessage());
+            return false;
         }
-        return false;
     }
 
     public boolean cancelInterview(String interviewId) {
@@ -54,8 +89,13 @@ public class InterviewService {
             throw new IllegalArgumentException("Interview ID is required");
         }
 
-        // Find and remove the interview
-        return interviews.removeIf(interview -> interview.getId().equals(interviewId));
+        try {
+            collection.deleteOne(Filters.eq("_id", new ObjectId(interviewId)));
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error canceling interview: " + e.getMessage());
+            return false;
+        }
     }
 
     public boolean updateInterviewStatus(String interviewId, String newStatus) {
@@ -63,13 +103,30 @@ public class InterviewService {
             throw new IllegalArgumentException("Interview ID and new status are required");
         }
 
-        // Find and update the interview status
-        for (Interview interview : interviews) {
-            if (interview.getId().equals(interviewId)) {
-                interview.setStatus(newStatus);
-                return true;
-            }
+        try {
+            collection.updateOne(
+                Filters.eq("_id", new ObjectId(interviewId)),
+                Updates.set("status", newStatus)
+            );
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error updating interview status: " + e.getMessage());
+            return false;
         }
-        return false;
+    }
+
+    private Interview documentToInterview(Document doc) {
+        Interview interview = new Interview(
+            doc.getObjectId("_id").toString(),
+            doc.getString("candidateName"),
+            doc.getString("candidateEmail"),
+            doc.getString("position"),
+            doc.getDate("dateTime").toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+            doc.getString("status"),
+            doc.getString("type"),
+            doc.getString("recruiterEmail")
+        );
+        interview.setNotes(doc.getString("notes"));
+        return interview;
     }
 } 

@@ -116,6 +116,27 @@ public class JobPortal extends Application {
         }
     }
 
+    public static void setRoot(String fxmlFileName) throws IOException {
+        if (fxmlFileName == null || fxmlFileName.isEmpty()) {
+            throw new IllegalArgumentException("FXML file name cannot be null or empty.");
+        }
+
+        String fxmlPath = "/com/jobportal/jobportal/" + fxmlFileName + ".fxml";
+        FXMLLoader loader = new FXMLLoader(JobPortal.class.getResource(fxmlPath));
+        if (loader.getLocation() == null) {
+            throw new IOException("Cannot find FXML file at path: " + fxmlPath);
+        }
+        Parent root = loader.load();
+
+        Scene scene = primaryStage.getScene();
+        if (scene == null) {
+            scene = new Scene(root);
+            primaryStage.setScene(scene);
+        } else {
+            scene.setRoot(root);
+        }
+    }
+
     public static void main(String[] args) {
         launch(args);
     }

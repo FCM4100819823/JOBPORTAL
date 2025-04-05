@@ -81,10 +81,13 @@ public class ClientsController {
         newClient.setRecruiterEmail(recruiterEmail);
         
         try {
-            clientService.addClient(newClient);
-            showAlert("Success", "Client added successfully");
-            newClientField.clear();
-            loadClients(); // Refresh the list
+            if (clientService.addClient(newClient)) {
+                showAlert("Success", "Client added successfully");
+                newClientField.clear();
+                loadClients(); // Refresh the list
+            } else {
+                showAlert("Error", "Failed to add client");
+            }
         } catch (Exception e) {
             showAlert("Error", "Failed to add client: " + e.getMessage());
         }
@@ -98,16 +101,9 @@ public class ClientsController {
             return;
         }
 
-        TextInputDialog dialog = new TextInputDialog(selected.getName());
-        dialog.setTitle("Edit Client");
-        dialog.setHeaderText(null);
-        dialog.setContentText("Enter new client name:");
-
-        dialog.showAndWait().ifPresent(newName -> {
-            selected.setName(newName);
-            clientService.updateClient(selected);
-            loadClients(); // Refresh the list
-        });
+        // TODO: Show edit dialog with client details
+        // For now, just show a message
+        showAlert("Info", "Edit functionality coming soon");
     }
 
     @FXML
@@ -118,20 +114,32 @@ public class ClientsController {
             return;
         }
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Delete Client");
-        confirm.setHeaderText(null);
-        confirm.setContentText("Are you sure you want to delete this client?");
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Confirm Delete");
+        confirmDialog.setHeaderText("Delete Client");
+        confirmDialog.setContentText("Are you sure you want to delete " + selected.getName() + "?");
 
-        if (confirm.showAndWait().get() == ButtonType.OK) {
-            clientService.deleteClient(selected.getId());
-            loadClients(); // Refresh the list
+        if (confirmDialog.showAndWait().get() == ButtonType.OK) {
+            try {
+                if (clientService.deleteClient(selected.getId())) {
+                    showAlert("Success", "Client deleted successfully");
+                    loadClients(); // Refresh the list
+                } else {
+                    showAlert("Error", "Failed to delete client");
+                }
+            } catch (Exception e) {
+                showAlert("Error", "Failed to delete client: " + e.getMessage());
+            }
         }
     }
 
     @FXML
     private void goToDashboard() {
-        JobPortal.loadScene("recruiter_dashboard.fxml", "Recruiter Dashboard");
+        try {
+            JobPortal.setRoot("recruiter_dashboard");
+        } catch (Exception e) {
+            showAlert("Error", "Failed to return to dashboard: " + e.getMessage());
+        }
     }
 
     private void showAlert(String title, String content) {

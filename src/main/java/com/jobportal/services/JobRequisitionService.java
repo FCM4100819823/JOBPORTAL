@@ -1,5 +1,6 @@
 package com.jobportal.services;
 
+import com.jobportal.database.DatabaseConnection;
 import com.jobportal.models.JobRequisition;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
@@ -14,9 +15,12 @@ public class JobRequisitionService {
     private final MongoCollection<Document> collection;
 
     public JobRequisitionService() {
-        MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
-        MongoDatabase database = mongoClient.getDatabase("jobportal");
-        this.collection = database.getCollection("jobRequisitions");
+        MongoDatabase database = DatabaseConnection.getDatabase();
+        if (database != null) {
+            this.collection = database.getCollection("jobRequisitions");
+        } else {
+            throw new RuntimeException("Failed to connect to database");
+        }
     }
 
     public List<JobRequisition> getJobRequisitionsByRecruiter(String recruiterEmail) {
@@ -38,39 +42,57 @@ public class JobRequisitionService {
         return doc != null ? documentToJobRequisition(doc) : null;
     }
 
-    public void addJobRequisition(JobRequisition requisition) {
-        Document doc = new Document()
-            .append("title", requisition.getTitle())
-            .append("company", requisition.getCompany())
-            .append("location", requisition.getLocation())
-            .append("status", requisition.getStatus())
-            .append("description", requisition.getDescription())
-            .append("requirements", requisition.getRequirements())
-            .append("recruiterEmail", requisition.getRecruiterEmail())
-            .append("createdAt", requisition.getCreatedAt())
-            .append("updatedAt", requisition.getUpdatedAt());
+    public boolean addJobRequisition(JobRequisition requisition) {
+        try {
+            Document doc = new Document()
+                .append("title", requisition.getTitle())
+                .append("company", requisition.getCompany())
+                .append("location", requisition.getLocation())
+                .append("status", requisition.getStatus())
+                .append("description", requisition.getDescription())
+                .append("requirements", requisition.getRequirements())
+                .append("recruiterEmail", requisition.getRecruiterEmail())
+                .append("createdAt", requisition.getCreatedAt())
+                .append("updatedAt", requisition.getUpdatedAt());
 
-        collection.insertOne(doc);
-        requisition.setId(doc.getObjectId("_id").toString());
+            collection.insertOne(doc);
+            requisition.setId(doc.getObjectId("_id").toString());
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error adding job requisition: " + e.getMessage());
+            return false;
+        }
     }
 
-    public void updateJobRequisition(JobRequisition requisition) {
-        collection.updateOne(
-            Filters.eq("_id", new ObjectId(requisition.getId())),
-            Updates.combine(
-                Updates.set("title", requisition.getTitle()),
-                Updates.set("company", requisition.getCompany()),
-                Updates.set("location", requisition.getLocation()),
-                Updates.set("status", requisition.getStatus()),
-                Updates.set("description", requisition.getDescription()),
-                Updates.set("requirements", requisition.getRequirements()),
-                Updates.set("updatedAt", requisition.getUpdatedAt())
-            )
-        );
+    public boolean updateJobRequisition(JobRequisition requisition) {
+        try {
+            collection.updateOne(
+                Filters.eq("_id", new ObjectId(requisition.getId())),
+                Updates.combine(
+                    Updates.set("title", requisition.getTitle()),
+                    Updates.set("company", requisition.getCompany()),
+                    Updates.set("location", requisition.getLocation()),
+                    Updates.set("status", requisition.getStatus()),
+                    Updates.set("description", requisition.getDescription()),
+                    Updates.set("requirements", requisition.getRequirements()),
+                    Updates.set("updatedAt", requisition.getUpdatedAt())
+                )
+            );
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error updating job requisition: " + e.getMessage());
+            return false;
+        }
     }
 
-    public void deleteJobRequisition(String id) {
-        collection.deleteOne(Filters.eq("_id", new ObjectId(id)));
+    public boolean deleteJobRequisition(String id) {
+        try {
+            collection.deleteOne(Filters.eq("_id", new ObjectId(id)));
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error deleting job requisition: " + e.getMessage());
+            return false;
+        }
     }
 
     public List<JobRequisition> searchJobRequisitions(String recruiterEmail, String searchTerm) {

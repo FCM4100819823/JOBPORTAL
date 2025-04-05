@@ -1,5 +1,6 @@
 package com.jobportal.services;
 
+import com.jobportal.database.DatabaseConnection;
 import com.jobportal.models.Candidate;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
@@ -14,9 +15,12 @@ public class CandidateService {
     private final MongoCollection<Document> collection;
 
     public CandidateService() {
-        MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
-        MongoDatabase database = mongoClient.getDatabase("jobportal");
-        this.collection = database.getCollection("candidates");
+        MongoDatabase database = DatabaseConnection.getDatabase();
+        if (database != null) {
+            this.collection = database.getCollection("candidates");
+        } else {
+            throw new RuntimeException("Failed to connect to database");
+        }
     }
 
     public List<Candidate> getCandidatesByRecruiter(String recruiterEmail) {
@@ -58,43 +62,43 @@ public class CandidateService {
             candidate.setId(doc.getObjectId("_id").toString());
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error adding candidate: " + e.getMessage());
             return false;
         }
     }
 
-    public void updateCandidate(Candidate candidate) {
-        Document doc = new Document()
-            .append("name", candidate.getName())
-            .append("email", candidate.getEmail())
-            .append("phone", candidate.getPhone())
-            .append("skills", candidate.getSkills())
-            .append("yearsOfExperience", candidate.getYearsOfExperience())
-            .append("location", candidate.getLocation())
-            .append("status", candidate.getStatus())
-            .append("resumeUrl", candidate.getResumeUrl())
-            .append("notes", candidate.getNotes())
-            .append("updatedAt", candidate.getUpdatedAt());
-
-        collection.updateOne(
-            Filters.eq("_id", new ObjectId(candidate.getId())),
-            Updates.combine(
-                Updates.set("name", candidate.getName()),
-                Updates.set("email", candidate.getEmail()),
-                Updates.set("phone", candidate.getPhone()),
-                Updates.set("skills", candidate.getSkills()),
-                Updates.set("yearsOfExperience", candidate.getYearsOfExperience()),
-                Updates.set("location", candidate.getLocation()),
-                Updates.set("status", candidate.getStatus()),
-                Updates.set("resumeUrl", candidate.getResumeUrl()),
-                Updates.set("notes", candidate.getNotes()),
-                Updates.set("updatedAt", candidate.getUpdatedAt())
-            )
-        );
+    public boolean updateCandidate(Candidate candidate) {
+        try {
+            collection.updateOne(
+                Filters.eq("_id", new ObjectId(candidate.getId())),
+                Updates.combine(
+                    Updates.set("name", candidate.getName()),
+                    Updates.set("email", candidate.getEmail()),
+                    Updates.set("phone", candidate.getPhone()),
+                    Updates.set("skills", candidate.getSkills()),
+                    Updates.set("yearsOfExperience", candidate.getYearsOfExperience()),
+                    Updates.set("location", candidate.getLocation()),
+                    Updates.set("status", candidate.getStatus()),
+                    Updates.set("resumeUrl", candidate.getResumeUrl()),
+                    Updates.set("notes", candidate.getNotes()),
+                    Updates.set("updatedAt", candidate.getUpdatedAt())
+                )
+            );
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error updating candidate: " + e.getMessage());
+            return false;
+        }
     }
 
-    public void deleteCandidate(String id) {
-        collection.deleteOne(Filters.eq("_id", new ObjectId(id)));
+    public boolean deleteCandidate(String id) {
+        try {
+            collection.deleteOne(Filters.eq("_id", new ObjectId(id)));
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error deleting candidate: " + e.getMessage());
+            return false;
+        }
     }
 
     public List<Candidate> searchCandidates(String recruiterEmail, String searchTerm) {
