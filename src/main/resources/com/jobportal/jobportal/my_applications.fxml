@@ -5,25 +5,36 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
+<BorderPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.jobportal.controllers.MyApplicationsController"
-           stylesheets="@styles.css"
+           stylesheets="@dashboard.css" 
            styleClass="root-pane">
 
-    <VBox spacing="20" alignment="CENTER" styleClass="dashboard-content">
-        <Text text="My Applications" styleClass="dashboard-title"/>
-        
-        <!-- No applications message -->
-        <Text fx:id="noApplicationsText" text="You haven't applied to any jobs yet" 
-              styleClass="info-message" visible="false"/>
-        
-        <!-- Applications list -->
-        <ListView fx:id="applicationsListView" styleClass="job-list" VBox.vgrow="ALWAYS"/>
-        
-        <HBox spacing="15" alignment="CENTER">
-            <Button text="Refresh" onAction="#refreshApplications" styleClass="primary-button"/>
-            <Button text="Back to Dashboard" onAction="#goToDashboard" styleClass="button-secondary"/>
+    <top>
+        <HBox alignment="CENTER_LEFT" styleClass="header-container" spacing="10">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Text text="My Applications" styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Back to Dashboard" onAction="#goToDashboard" styleClass="secondary-button"/>
         </HBox>
-    </VBox>
-</AnchorPane>
+    </top>
+
+    <center>
+        <VBox styleClass="content-area" spacing="15">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+            <!-- No applications message -->
+            <Text fx:id="noApplicationsText" text="You haven't applied to any jobs yet" 
+                  style="-fx-fill: #7f8c8d; -fx-font-style: italic;" visible="false" managed="false"/>
+            
+            <!-- Applications list -->
+            <ListView fx:id="applicationsListView" styleClass="list-view" VBox.vgrow="ALWAYS"/>
+            
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Refresh" onAction="#refreshApplications" styleClass="primary-button"/>
+                <!-- Back button is now in the header -->
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

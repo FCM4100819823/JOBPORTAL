@@ -1,15 +1,22 @@
 package com.jobportal.controllers;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
 import com.jobportal.main.JobPortal;
+import com.jobportal.utils.SessionManager;
+
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import java.net.URL;
-import java.util.ResourceBundle;
-import javafx.fxml.Initializable;
-import com.jobportal.utils.SessionManager;
+import javafx.stage.Stage;
 
 public class EmployerDashboardController implements Initializable {
 
@@ -69,8 +76,6 @@ public class EmployerDashboardController implements Initializable {
     
     @FXML
     public void handlePostJob() {
-        System.out.println("Navigating to post job page");
-        // Navigate to job posting screen
         JobPortal.loadScene("post_job.fxml", "Job Portal - Post a Job");
     }
     
@@ -83,72 +88,72 @@ public class EmployerDashboardController implements Initializable {
     
     @FXML
     public void handleApplications() {
-        System.out.println("Viewing applications");
-        // Navigate to applications screen
-        JobPortal.loadScene("applications.fxml", "Job Portal - Applications");
-    }
-    
-    @FXML
-    public void handleSignOut() {
-        System.out.println("Signing out");
-        // Navigate back to login screen
-        JobPortal.loadScene("login.fxml", "Job Portal - Login");
+        JobPortal.loadScene("my_applications.fxml", "Applications");
     }
     
     @FXML
     public void handleLogout() {
-        System.out.println("Signing out");
-        // Clear user session
         SessionManager.getInstance().clearSession();
-        // Navigate back to login screen
         JobPortal.loadScene("login.fxml", "Job Portal - Login");
     }
 
     // Add these navigation methods for sidebar buttons
     @FXML
     private void navigateToDashboard() {
-        // Already on dashboard, refresh if needed
         JobPortal.loadScene("employer_dashboard.fxml", "Job Portal - Employer Dashboard");
     }
 
     @FXML
     private void navigateToPostJob() {
-        handlePostJob(); // Use existing method
+        JobPortal.loadScene("post_job.fxml", "Post Job");
     }
 
     @FXML
-    private void navigateToManageJobs() {
-        handleMyJobs(); // Use existing method
+    private void navigateToMyJobs() {
+        JobPortal.loadScene("my_jobs.fxml", "My Jobs");
     }
 
     @FXML
     private void navigateToApplications() {
-        handleApplications(); // Use existing method
+        JobPortal.loadScene("my_applications.fxml", "Applications");
     }
 
     @FXML
     private void navigateToMessages() {
-        // Navigate to messages screen
-        System.out.println("Navigating to messages");
-        JobPortal.loadScene("employer_messages.fxml", "Job Portal - Messages");
+        JobPortal.loadScene("messages.fxml", "Messages");
     }
 
     @FXML
     private void navigateToCompanyProfile() {
-        // Navigate to company profile screen
-        System.out.println("Navigating to company profile");
-        JobPortal.loadScene("company_profile.fxml", "Job Portal - Company Profile");
+        JobPortal.loadScene("company_profile.fxml", "Company Profile");
     }
 
     @FXML
     private void navigateToSettings() {
-        // Navigate to settings screen
-        System.out.println("Navigating to settings");
-        JobPortal.loadScene("employer_settings.fxml", "Job Portal - Settings");
+        JobPortal.loadScene("settings.fxml", "Settings");
     }
     
+    @FXML
+    private void navigateToManageJobs() {
+        System.out.println("Navigating to Manage Jobs...");
+        JobPortal.loadScene("manage_jobs.fxml", "Manage Jobs");
+    }
+
     private void setupTableColumns() {
         // This would be implemented to display actual job data
         // For now, it's just a placeholder
+    }
+
+    private void loadScene(String fxmlPath, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle(title);
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

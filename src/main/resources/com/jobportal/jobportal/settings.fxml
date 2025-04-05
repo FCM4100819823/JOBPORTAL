@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.jobportal.controllers.SettingsController"
+            stylesheets="@dashboard.css" 
+            styleClass="root-pane">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" styleClass="header-container" spacing="10">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Text text="Settings" styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Back to Dashboard" onAction="#goToDashboard" styleClass="secondary-button"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox styleClass="content-area" spacing="15">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+            
+            <!-- Settings Content Placeholder -->
+            <Label text="Account Settings" styleClass="section-title" style="-fx-font-size: 18px;"/>
+            <VBox styleClass="card" spacing="10">
+                 <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                 <CheckBox text="Enable Email Notifications"/>
+                 <CheckBox text="Enable SMS Notifications"/>
+                 <Button text="Change Password" styleClass="secondary-button"/>
+            </VBox>
+            
+             <Label text="Privacy Settings" styleClass="section-title" style="-fx-font-size: 18px;"/>
+             <VBox styleClass="card" spacing="10">
+                  <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                  <CheckBox text="Make Profile Public"/>
+                  <Button text="Delete Account" styleClass="warning-button"/>
+             </VBox>
+             
+        </VBox>
+    </center>
+</BorderPane>

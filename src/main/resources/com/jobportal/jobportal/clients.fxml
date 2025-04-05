@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.jobportal.controllers.ClientsController"
+            stylesheets="@dashboard.css" styleClass="root-pane">
+    
+    <top>
+        <HBox alignment="CENTER_LEFT" styleClass="header-container" spacing="10">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Text text="Client Management" styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Back to Dashboard" onAction="#goToDashboard" styleClass="secondary-button"/>
+        </HBox>
+    </top>
+    
+    <center>
+        <VBox styleClass="content-area" spacing="20">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+            
+            <!-- Search and Add Client -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField" promptText="Search clients..." HBox.hgrow="ALWAYS"/>
+            </HBox>
+            
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="newClientField" promptText="Enter new client name" HBox.hgrow="ALWAYS"/>
+                <Button text="Add Client" onAction="#handleAddClient" styleClass="primary-button"/>
+            </HBox>
+            
+            <!-- Action Buttons -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="Edit" onAction="#handleEditClient" styleClass="secondary-button"/>
+                <Button text="Delete" onAction="#handleDeleteClient" styleClass="secondary-button"/>
+            </HBox>
+            
+            <!-- Clients List -->
+            <ListView fx:id="clientsListView" VBox.vgrow="ALWAYS" prefHeight="400"/>
+        </VBox>
+    </center>
+</BorderPane> 

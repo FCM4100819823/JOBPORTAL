@@ -12,7 +12,7 @@
            stylesheets="@dashboard.css"
            styleClass="root-pane">
 
-    <BorderPane fx:id="loginPane" styleClass="login-page" maxWidth="600" maxHeight="400">
+    <BorderPane fx:id="loginPane" styleClass="login-page" maxWidth="550">
         <top>
             <VBox alignment="CENTER" styleClass="header-section">
                 <padding>
@@ -28,9 +28,9 @@
         </top>
 
         <center>
-            <VBox fx:id="loginForm" alignment="CENTER" spacing="20" styleClass="login-form">
+            <VBox fx:id="loginForm" alignment="CENTER" spacing="18" styleClass="login-form" maxWidth="350">
                 <padding>
-                    <Insets top="20" right="40" bottom="20" left="40"/>
+                    <Insets top="20" right="40" bottom="30" left="40"/>
                 </padding>
 
                 <Text text="Sign In" styleClass="section-title">
@@ -43,20 +43,23 @@
 
                 <HBox spacing="10" alignment="CENTER">
                     <Label text="📧" styleClass="icon-label"/>
-                    <TextField fx:id="emailField" promptText="Email" styleClass="input-field" HBox.hgrow="ALWAYS"/>
+                    <TextField fx:id="emailField" promptText="Email" styleClass="input-field"/>
                 </HBox>
 
                 <HBox spacing="10" alignment="CENTER">
                     <Label text="🔒" styleClass="icon-label"/>
-                    <PasswordField fx:id="passwordField" promptText="Password" styleClass="input-field" HBox.hgrow="ALWAYS"/>
+                    <PasswordField fx:id="passwordField" promptText="Password" styleClass="input-field"/>
                 </HBox>
 
-                <HBox alignment="CENTER_RIGHT">
+                <HBox alignment="CENTER_RIGHT" maxWidth="Infinity">
+                    <padding>
+                        <Insets top="0" right="5" bottom="5" left="0"/>
+                    </padding>
                     <Hyperlink fx:id="forgotPasswordLink" text="Forgot Password?" />
                 </HBox>
 
                 <Button text="Sign In" onAction="#handleLogin" styleClass="primary-button" maxWidth="Infinity"/>
-                <Button text="Sign Up" onAction="#goToRegister" styleClass="primary-button" maxWidth="Infinity"/>
+                <Button text="Sign Up" onAction="#goToRegister" styleClass="secondary-button" maxWidth="Infinity"/>
             </VBox>
         </center>
 

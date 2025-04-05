@@ -1,0 +1,410 @@
+# Job Portal Desktop Application
+
+## Overview
+
+This is a desktop application developed using Java and the JavaFX framework, designed to function as a comprehensive job portal. It aims to connect Job Seekers, Employers, and Recruiters by providing dedicated interfaces for managing job postings, applications, candidate profiles, user accounts, and communication.
+
+The application utilizes FXML for defining UI layouts and follows a Model-View-Controller (MVC)-like pattern, separating UI (FXML), UI logic (Controllers), data representation (Models), and business logic/database interaction (Services). User sessions are managed via a `SessionManager` utility.
+
+*(This section addresses the core of point 5)*
+
+---
+
+## Technology Stack & Dependencies
+
+This project relies on the following core technologies and dependencies:
+
+*   **Java Development Kit (JDK):**
+    *   **Version:** Requires JDK 11 or later.
+    *   **Reason:** Core platform for running Java code. Modern Java versions are needed for compatibility with current JavaFX.
+*   **JavaFX SDK:**
+    *   **Version:** Needs to be compatible with the chosen JDK version (e.g., JavaFX 17+). Requires separate download and configuration.
+    *   **Reason:** Provides the libraries for the graphical user interface (GUI), including UI controls, layout management, FXML processing, and CSS styling.
+*   **MongoDB:**
+    *   **Version:** MongoDB 4.4 or later
+    *   **Driver:** MongoDB Java Driver 4.4 or later
+    *   **Reason:** Provides NoSQL database functionality for storing application data with flexible schema.
+*   **Build Tool (Maven or Gradle):**
+    *   **Configuration:** Check `pom.xml` (Maven) or `build.gradle` (Gradle).
+    *   **Reason:** Manages the project's build lifecycle, including compiling code, managing external dependencies (like JavaFX, database drivers), running tests, and packaging the application. **Crucial for managing project complexity.**
+
+
+---
+
+## Key Imports & Usage
+
+The application utilizes various Java and JavaFX packages. Here are the most important categories and their purpose:
+
+*   **`javafx.fxml.*` (`FXMLLoader`, `FXML`)**: Core for loading `.fxml` UI layout files and linking elements to Controller code via `@FXML`.
+*   **`javafx.scene.*` (`Scene`, `Parent`, `Node`)**: Represents the main window content (`Scene`), the root UI element (`Parent`), and generic UI components (`Node`).
+*   **`javafx.scene.control.*` (`Button`, `Label`, `TextField`, `ListView`, `TableView`, etc.)**: Provides the interactive UI widgets used in the forms and displays.
+*   **`javafx.scene.layout.*` (`VBox`, `HBox`, `BorderPane`, `GridPane`, `StackPane`, `Region`)**: Essential for arranging UI elements within the application window.
+*   **`javafx.geometry.Insets`**: Used for defining padding/spacing around UI elements.
+*   **`javafx.stage.Stage`**: Represents the application window itself.
+*   **`java.io.*` (`IOException`, `File`)**: Used for handling potential file loading errors (FXML) and managing file paths (uploads).
+*   **`java.util.*` (`List`, `ArrayList`, `Date`, `Optional`, `UUID`)**: Standard Java utilities for data structures, date handling, null safety, and ID generation.
+*   **`com.mongodb.client.*`**: MongoDB Java driver classes for database operations.
+*   **`org.bson.*`**: BSON document classes for MongoDB data representation.
+*   **`com.jobportal.main.*` (`JobPortal`, `SplashScreen`)**: Core application classes managing the startup, main stage, and scene loading.
+*   **`com.jobportal.controllers.*`**: Classes containing the logic for specific UI views (FXML files), handling user actions and events.
+*   **`com.jobportal.models.*`**: Data classes (`User`, `Job`, `Candidate`, etc.) that model the application's entities.
+*   **`com.jobportal.services.*`**: Classes encapsulating business logic and data persistence operations, acting as an intermediary between Controllers and the database.
+*   **`com.jobportal.utils.SessionManager`**: A critical utility for maintaining the logged-in user's state across different parts of the application.
+
+
+---
+
+## User Roles & Features
+
+The application defines several user roles, each with specific goals and access to different features:
+
+*   **Admin:**
+    *   **Goal:** Oversee the platform, manage users and core content.
+    *   **Features:** Admin Dashboard, User Management (View/Delete), Job Posting Management (View/Delete), Application Management (View/Delete), Logout.
+*   **Job Seeker:**
+    *   **Goal:** Search for jobs, apply, and manage their profile/applications.
+    *   **Features:** Dashboard (Stats, Job Search/Listings), View Job Details, Apply (with Resume/Cover Letter), View My Applications, View/Edit Profile (incl. Picture), View Saved Jobs, Messages, Settings (Basic), Logout.
+*   **Employer:**
+    *   **Goal:** Post jobs, manage postings, and review applications.
+    *   **Features:** Dashboard (Stats, Job Table), Post New Job, Manage My Jobs (*Placeholder*), View Applications, Company Profile (*Placeholder*), Messages, Settings, Logout.
+*   **Recruiter:**
+    *   **Goal:** Source candidates, manage clients/requisitions, and facilitate hiring.
+    *   **Features:** 
+        * Dashboard (Stats, Candidate Table)
+        * Manage Clients (Implemented)
+        * Job Requisitions (Implemented)
+        * View Candidate Database (Implemented)
+        * Add Candidate (Implemented)
+        * Manage Interviews (Implemented)
+        * Schedule Interview (Implemented)
+        * Messages
+        * Settings
+        * Logout
+
+
+---
+
+## Database Schema
+
+For the application to store data, the following MongoDB collections should be created. **Note:** This structure is a recommendation; actual implementation might vary.
+
+### MongoDB Collections
+
+#### 1. `users` Collection
+```javascript
+db.createCollection("users")
+db.users.createIndex({ "email": 1 }, { unique: true })
+db.users.createIndex({ "username": 1 }, { sparse: true, unique: true })
+
+// Sample data
+db.users.insertMany([
+  {
+    _id: ObjectId(),
+    username: "johndoe",
+    email: "john@example.com",
+    password: "hashedPassword123",
+    role: "Job Seeker",
+    fullName: "John Doe",
+    phone: "+1-555-0123",
+    location: "New York",
+    profilePicturePath: "profiles/john_doe.jpg",
+    createdAt: ISODate(),
+    updatedAt: ISODate()
+  },
+  {
+    _id: ObjectId(),
+    email: "recruiter@company.com",
+    password: "hashedPassword456",
+    role: "Recruiter",
+    fullName: "Jane Recruiter",
+    companyName: "Tech Corp",
+    companyDetails: "Leading technology company",
+    createdAt: ISODate(),
+    updatedAt: ISODate()
+  }
+])
+```
+
+#### 2. `jobs` Collection
+```javascript
+db.createCollection("jobs")
+db.jobs.createIndex({ "employerEmail": 1 })
+db.jobs.createIndex({ "status": 1 })
+db.jobs.createIndex({ "title": "text", "description": "text" })
+
+// Sample data
+db.jobs.insertMany([
+  {
+    _id: ObjectId(),
+    title: "Senior Software Engineer",
+    description: "Looking for experienced Java developer",
+    company: "Tech Corp",
+    employerEmail: "employer@techcorp.com",
+    location: "New York",
+    salaryRange: "$120,000 - $150,000",
+    requiredSkills: ["Java", "Spring", "MongoDB"],
+    datePosted: ISODate(),
+    status: "Active",
+    createdAt: ISODate(),
+    updatedAt: ISODate()
+  }
+])
+```
+
+#### 3. `applications` Collection
+```javascript
+db.createCollection("applications")
+db.applications.createIndex({ "jobId": 1 })
+db.applications.createIndex({ "userId": 1 })
+db.applications.createIndex({ "userEmail": 1 })
+db.applications.createIndex({ "status": 1 })
+
+// Sample data
+db.applications.insertMany([
+  {
+    _id: ObjectId(),
+    jobId: ObjectId("jobIdHere"),
+    jobTitle: "Senior Software Engineer",
+    companyName: "Tech Corp",
+    userId: ObjectId("userIdHere"),
+    userEmail: "john@example.com",
+    applicationDate: ISODate(),
+    status: "Pending",
+    resumePath: "resumes/john_doe.pdf",
+    coverLetterPath: "cover_letters/john_doe.pdf",
+    notes: "Promising candidate",
+    createdAt: ISODate(),
+    updatedAt: ISODate()
+  }
+])
+```
+
+#### 4. `candidates` Collection
+```javascript
+db.createCollection("candidates")
+db.candidates.createIndex({ "email": 1 }, { unique: true })
+db.candidates.createIndex({ "recruiterEmail": 1 })
+db.candidates.createIndex({ "skills": 1 })
+
+// Sample data
+db.candidates.insertMany([
+  {
+    _id: ObjectId(),
+    name: "John Doe",
+    email: "john@example.com",
+    skills: ["Java", "Spring", "MongoDB"],
+    yearsOfExperience: 5,
+    location: "New York",
+    status: "Active",
+    recruiterEmail: "recruiter@company.com",
+    resumeUrl: "resumes/john_doe.pdf",
+    createdAt: ISODate(),
+    updatedAt: ISODate()
+  }
+])
+```
+
+#### 5. `interviews` Collection
+```javascript
+db.createCollection("interviews")
+db.interviews.createIndex({ "recruiterEmail": 1 })
+db.interviews.createIndex({ "candidateEmail": 1 })
+db.interviews.createIndex({ "dateTime": 1 })
+
+// Sample data
+db.interviews.insertMany([
+  {
+    _id: ObjectId(),
+    candidateName: "John Doe",
+    candidateEmail: "john@example.com",
+    position: "Software Engineer",
+    dateTime: ISODate("2024-03-20T10:00:00Z"),
+    status: "Scheduled",
+    type: "Technical",
+    recruiterEmail: "recruiter@company.com",
+    notes: "Technical interview for Java position",
+    createdAt: ISODate(),
+    updatedAt: ISODate()
+  }
+])
+```
+
+#### 6. `jobRequisitions` Collection
+```javascript
+db.createCollection("jobRequisitions")
+db.jobRequisitions.createIndex({ "recruiterEmail": 1 })
+db.jobRequisitions.createIndex({ "status": 1 })
+db.jobRequisitions.createIndex({ "title": "text", "description": "text" })
+
+// Sample data
+db.jobRequisitions.insertMany([
+  {
+    _id: ObjectId(),
+    title: "Senior Software Engineer",
+    company: "Tech Corp",
+    location: "New York",
+    status: "Open",
+    description: "Looking for experienced Java developer",
+    requirements: ["5+ years Java", "Spring Boot", "MongoDB"],
+    recruiterEmail: "recruiter@company.com",
+    createdAt: ISODate(),
+    updatedAt: ISODate()
+  }
+])
+```
+
+#### 7. `clients` Collection
+```javascript
+db.createCollection("clients")
+db.clients.createIndex({ "name": 1 })
+db.clients.createIndex({ "recruiterEmail": 1 })
+
+// Sample data
+db.clients.insertMany([
+  {
+    _id: ObjectId(),
+    name: "Tech Corp",
+    industry: "Technology",
+    location: "New York",
+    recruiterEmail: "recruiter@company.com",
+    contactPerson: "John Manager",
+    contactEmail: "john@techcorp.com",
+    phone: "+1-555-0123",
+    createdAt: ISODate(),
+    updatedAt: ISODate()
+  }
+])
+```
+
+#### 8. `messages` Collection
+```javascript
+db.createCollection("messages")
+db.messages.createIndex({ "senderEmail": 1 })
+db.messages.createIndex({ "recipientEmail": 1 })
+db.messages.createIndex({ "conversationId": 1 })
+
+// Sample data
+db.messages.insertMany([
+  {
+    _id: ObjectId(),
+    senderEmail: "recruiter@company.com",
+    recipientEmail: "john@example.com",
+    subject: "Interview Invitation",
+    content: "We would like to invite you for an interview",
+    timestamp: ISODate(),
+    read: false,
+    conversationId: ObjectId("conversationIdHere"),
+    createdAt: ISODate(),
+    updatedAt: ISODate()
+  }
+])
+```
+
+#### 9. `saved_jobs` Collection
+```javascript
+db.createCollection("saved_jobs")
+db.saved_jobs.createIndex({ "userEmail": 1 })
+db.saved_jobs.createIndex({ "jobId": 1 })
+
+// Sample data
+db.saved_jobs.insertMany([
+  {
+    _id: ObjectId(),
+    userEmail: "john@example.com",
+    jobId: ObjectId("jobIdHere"),
+    dateSaved: ISODate(),
+    createdAt: ISODate(),
+    updatedAt: ISODate()
+  }
+])
+```
+
+---
+
+## General Project Explanation & FAQs
+
+*   **General Explanation:** This project aims to create a functional desktop Job Portal using Java and JavaFX. It provides separate interfaces for different user types (Job Seekers, Employers, Recruiters, Admins) to manage job-related activities. The architecture separates UI (FXML), control logic (Controllers), data models (Models), and business/database logic (Services), promoting modularity. Key aspects include role-based dashboards, user authentication, session management, and data persistence through MongoDB.
+
+*   **Potential FAQs:**
+    *   **Q: What is the main purpose of this application?**
+        *   **A:** To provide a desktop platform for connecting job seekers with employers and recruiters, facilitating job posting, searching, applying, and candidate management.
+    *   **Q: How does user authentication work?**
+        *   **A:** Users log in via email/password. `LoginController` calls `UserService` to verify credentials against the database. Successful logins store user data in `SessionManager` for session persistence across different views.
+    *   **Q: How is the UI structured?**
+        *   **A:** JavaFX is used for the GUI. Layouts are defined in FXML files, styled with CSS (`dashboard.css`). Controller classes handle UI logic and events, following an MVC-like pattern.
+    *   **Q: Is the application complete? What are the next steps?**
+        *   **A:** The application has a foundational structure with dashboards and core navigation. Several key features are implemented or partially implemented. Many Employer and Recruiter features are now fully implemented. Key next steps are:
+            1.  Implement robust error handling and input validation throughout.
+            2.  Add unit and integration tests for reliability.
+            3.  Enhance the UI with more advanced features and animations.
+            4.  Implement reporting and analytics features.
+
+
+---
+
+## Setup and Running
+
+1.  **Prerequisites:**
+    *   Install Java Development Kit (JDK) version 11 or higher.
+    *   Install a build tool (Maven or Gradle, based on the project configuration).
+    *   Download and configure the JavaFX SDK appropriate for your OS and JDK version. [See JavaFX Docs](https://openjfx.io/openjfx-docs/)
+    *   Install MongoDB 4.4 or later. [See MongoDB Docs](https://docs.mongodb.com/manual/installation/)
+    *   Create the required MongoDB collections using the scripts provided in the Database Schema section.
+
+2.  **Configure Build Tool:**
+    *   Ensure your `pom.xml` (Maven) or `build.gradle` (Gradle) correctly lists JavaFX dependencies and the MongoDB Java driver dependency.
+    *   Configure your IDE (e.g., IntelliJ IDEA, Eclipse, VS Code with Java extensions) to recognize the build tool project and the JavaFX SDK. You **must** configure VM options for JavaFX module paths according to the JavaFX documentation for your specific setup.
+
+3.  **Database Configuration:**
+    *   The application is configured to connect to a local MongoDB instance at `mongodb://localhost:27017` with database name `jobportal`.
+    *   If you need to use a different MongoDB connection, update the connection string in the service classes.
+
+4.  **Build the Project:**
+    *   Use your build tool:
+        *   Maven: `mvn clean package`
+        *   Gradle: `gradlew build`
+
+5.  **Run the Application:**
+    *   Run the main application class (`com.jobportal.main.JobPortal`) from your IDE or using the command line (ensure JavaFX modules are correctly configured via VM options).
+
+## Using the Application
+
+*   Launch the application. A splash screen appears, followed by the Login page.
+*   **Register:** (If implemented) Create a new account via the Sign Up button.
+*   **Login:** Enter valid credentials (email/password).
+*   The application loads the appropriate dashboard based on the logged-in user's role.
+*   Use the sidebar or internal buttons to navigate between features.
+
+---
+
+## Recent Updates
+
+### Recruiter Dashboard Enhancements
+
+1. **Interviews Management**
+   - Added ability to view, schedule, and manage interviews
+   - Implemented interview status tracking
+   - Created interview scheduling form with date/time selection
+
+2. **Candidate Database**
+   - Implemented full CRUD operations for candidates
+   - Added search and filter functionality
+   - Created detailed candidate profile view
+
+3. **Job Requisitions**
+   - Added ability to create and manage job requisitions
+   - Implemented status tracking for requisitions
+   - Created search and filter functionality
+
+4. **Client Management**
+   - Implemented client database with CRUD operations
+   - Added search functionality for clients
+   - Created detailed client profile view
+
+5. **MongoDB Integration**
+   - Implemented MongoDB collections for all data entities
+   - Created service classes with proper database operations
+   - Added indexes for efficient querying
+
+---
+

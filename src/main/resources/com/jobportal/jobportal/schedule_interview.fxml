@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.jobportal.controllers.ScheduleInterviewController"
+            stylesheets="@dashboard.css" styleClass="root-pane">
+    
+    <top>
+        <HBox alignment="CENTER_LEFT" styleClass="header-container" spacing="10">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Text text="Schedule Interview" styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Back to Dashboard" onAction="#goToDashboard" styleClass="secondary-button"/>
+        </HBox>
+    </top>
+    
+    <center>
+        <VBox styleClass="content-area" spacing="20">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+            
+            <!-- Interview Form -->
+            <GridPane hgap="10" vgap="10">
+                <Label text="Candidate:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <ComboBox fx:id="candidateComboBox" GridPane.columnIndex="1" GridPane.rowIndex="0" 
+                         prefWidth="200"/>
+                
+                <Label text="Position:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <TextField fx:id="positionField" GridPane.columnIndex="1" GridPane.rowIndex="1" 
+                          prefWidth="200"/>
+                
+                <Label text="Date:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <DatePicker fx:id="datePicker" GridPane.columnIndex="1" GridPane.rowIndex="2" 
+                           prefWidth="200"/>
+                
+                <Label text="Time:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                <ComboBox fx:id="timeComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3" 
+                         prefWidth="200"/>
+                
+                <Label text="Type:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                <ComboBox fx:id="typeComboBox" GridPane.columnIndex="1" GridPane.rowIndex="4" 
+                         prefWidth="200"/>
+                
+                <Label text="Notes:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                <TextArea fx:id="notesArea" GridPane.columnIndex="1" GridPane.rowIndex="5" 
+                         prefWidth="300" prefHeight="100" wrapText="true"/>
+            </GridPane>
+            
+            <!-- Action Buttons -->
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Schedule" onAction="#handleSchedule" styleClass="primary-button"/>
+                <Button text="Cancel" onAction="#goToDashboard" styleClass="secondary-button"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane> 

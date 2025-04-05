@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<!-- Placeholder page for Interviews -->
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.jobportal.controllers.InterviewsController"
+            stylesheets="@dashboard.css" styleClass="root-pane">
+    <top>
+        <HBox alignment="CENTER_LEFT" styleClass="header-container" spacing="10">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Text text="Interview Management" styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Back to Dashboard" onAction="#goToDashboard" styleClass="secondary-button"/>
+        </HBox>
+    </top>
+    <center>
+        <VBox styleClass="content-area" spacing="20">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+            
+            <!-- Action Buttons -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="Schedule Interview" onAction="#handleScheduleInterview" styleClass="primary-button"/>
+                <Button text="Reschedule" onAction="#handleRescheduleInterview" styleClass="secondary-button"/>
+                <Button text="Cancel Interview" onAction="#handleCancelInterview" styleClass="secondary-button"/>
+            </HBox>
+            
+            <!-- Interviews Table -->
+            <TableView fx:id="interviewsTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="candidateColumn" text="Candidate" prefWidth="150"/>
+                    <TableColumn fx:id="positionColumn" text="Position" prefWidth="150"/>
+                    <TableColumn fx:id="dateTimeColumn" text="Date &amp; Time" prefWidth="150"/>
+                    <TableColumn fx:id="statusColumn" text="Status" prefWidth="100"/>
+                    <TableColumn fx:id="typeColumn" text="Type" prefWidth="100"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane> 

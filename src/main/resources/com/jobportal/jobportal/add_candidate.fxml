@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<!-- Page to Add a New Candidate -->
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.jobportal.controllers.AddCandidateController"
+            stylesheets="@dashboard.css" styleClass="root-pane">
+    <top>
+        <HBox alignment="CENTER_LEFT" styleClass="header-container" spacing="10">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Text text="Add New Candidate" styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <!-- Link back button to controller -->
+            <Button fx:id="backButton" text="Back to Dashboard" onAction="#goToDashboard" styleClass="secondary-button"/> 
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="content-area">
+            <VBox spacing="20" styleClass="card">
+                <padding><Insets value="25"/></padding>
+
+                <GridPane hgap="15" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="100" prefWidth="120"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                        <ColumnConstraints hgrow="NEVER" minWidth="100" prefWidth="120"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <Label text="Full Name *" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="nameField" promptText="Enter candidate's full name" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Email *" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                    <TextField fx:id="emailField" promptText="Enter email address" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                    
+                    <Label text="Phone" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <TextField fx:id="phoneField" promptText="Enter phone number" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                    <Label text="Location" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                    <TextField fx:id="locationField" promptText="Enter current location" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+                    <Label text="Current Title" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <TextField fx:id="currentJobTitleField" promptText="Enter current job title" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                    <Label text="Experience (Yrs)" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                    <TextField fx:id="experienceField" promptText="e.g., 5" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+
+                    <Label text="Skills *" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                    <TextArea fx:id="skillsArea" promptText="Enter key skills (comma-separated)" 
+                              GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" prefRowCount="3" wrapText="true"/>
+
+                    <Label text="Notes" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                    <TextArea fx:id="notesArea" promptText="Add any relevant notes about the candidate" 
+                              GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.columnSpan="3" prefRowCount="4" wrapText="true"/>
+                </GridPane>
+                
+                <HBox alignment="CENTER_RIGHT" spacing="10">
+                    <Button fx:id="saveButton" text="Save Candidate" onAction="#handleSaveCandidate" styleClass="primary-button"/>
+                </HBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane> 

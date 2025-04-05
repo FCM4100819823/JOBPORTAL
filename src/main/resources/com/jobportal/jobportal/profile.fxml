@@ -6,44 +6,58 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-           xmlns:fx="http://javafx.com/fxml"
-           fx:controller="com.jobportal.controllers.ProfileController"
-           stylesheets="@dashboard.css"
-           styleClass="root-pane">
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.jobportal.controllers.ProfileController"
+            stylesheets="@dashboard.css"
+            styleClass="root-pane"> 
 
-    <VBox spacing="20" alignment="CENTER" styleClass="dashboard-content">
-        <Text text="My Profile" styleClass="dashboard-title"/>
-        <ImageView fx:id="profileImageView" fitWidth="150" fitHeight="150" preserveRatio="true" styleClass="profile-image"/>
-        <Button text="Upload Profile Picture" onAction="#handleUploadProfilePicture" styleClass="primary-button"/>
-        <GridPane hgap="15" vgap="15" alignment="CENTER">
-            <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="300.0"/>
-            </columnConstraints>
+    <top>
+        <HBox alignment="CENTER_LEFT" styleClass="header-container" spacing="10">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Text text="My Profile" styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="backToDashboardButton" text="Back to Dashboard" onAction="#goToDashboard" styleClass="secondary-button"/>
+        </HBox>
+    </top>
 
-            <!-- Full Name -->
-            <Label text="Full Name:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-            <TextField fx:id="fullNameField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="content-area">
+            <VBox spacing="20" styleClass="card" alignment="CENTER">
+                 <padding><Insets value="25"/></padding>
+                
+                <ImageView fx:id="profileImageView" fitWidth="120" fitHeight="120" preserveRatio="true" styleClass="profile-circle"/>
+                <Button text="Upload Profile Picture" onAction="#handleUploadProfilePicture" styleClass="secondary-button"/>
+                
+                <Separator/>
 
-            <!-- Email -->
-            <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-            <TextField fx:id="emailField" GridPane.columnIndex="1" GridPane.rowIndex="1" editable="false"/>
+                <GridPane hgap="15" vgap="10" maxWidth="600"> <!-- Constrain grid width -->
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="100" prefWidth="120" halignment="RIGHT"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
 
-            <!-- Phone -->
-            <Label text="Phone:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-            <TextField fx:id="phoneField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    <Label text="Full Name:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="fullNameField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-            <!-- Location -->
-            <Label text="Location:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-            <TextField fx:id="locationField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                    <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <TextField fx:id="emailField" GridPane.columnIndex="1" GridPane.rowIndex="1" editable="false" style="-fx-opacity: 0.7;"/>
 
-            <!-- Role -->
-            <Label text="Role:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-            <TextField fx:id="roleField" GridPane.columnIndex="1" GridPane.rowIndex="4" editable="false"/>
-        </GridPane>
+                    <Label text="Phone:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <TextField fx:id="phoneField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-        <Button text="Save Changes" onAction="#handleSaveChanges" styleClass="primary-button"/>
-        <Button fx:id="backToDashboardButton" text="Back to Dashboard" onAction="#goToDashboard" styleClass="button-secondary"/>
-    </VBox>
-</AnchorPane>
+                    <Label text="Location:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                    <TextField fx:id="locationField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                    <Label text="Role:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                    <TextField fx:id="roleField" GridPane.columnIndex="1" GridPane.rowIndex="4" editable="false" style="-fx-opacity: 0.7;"/>
+                </GridPane>
+                
+                <Separator/>
+
+                <Button text="Save Changes" onAction="#handleSaveChanges" styleClass="primary-button"/>
+                
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

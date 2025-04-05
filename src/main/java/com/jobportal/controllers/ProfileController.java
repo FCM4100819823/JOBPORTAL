@@ -1,18 +1,19 @@
 package com.jobportal.controllers;
 
+import java.io.File;
+
 import com.jobportal.main.JobPortal;
 import com.jobportal.models.User;
 import com.jobportal.services.UserService;
-import com.jobportal.utils.SessionManager;  // Added missing import
+import com.jobportal.utils.SessionManager;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-import javafx.scene.control.Button;
-
-import java.io.File;
 
 public class ProfileController {
     @FXML private TextField fullNameField;
@@ -24,26 +25,33 @@ public class ProfileController {
     @FXML private Button backToDashboardButton;
 
     private final UserService userService = new UserService();
-    private static User currentUser;
-
-    public static void setCurrentUser(User user) {
-        currentUser = user;
-    }
 
     @FXML
     private void initialize() {
+        User currentUser = SessionManager.getInstance().getCurrentUser();
         if (currentUser != null) {
-            fullNameField.setText(currentUser.getFullName());
-            emailField.setText(currentUser.getEmail());
-            phoneField.setText(currentUser.getPhone());
-            locationField.setText(currentUser.getLocation());
-            roleField.setText(currentUser.getRole());
+            populateFields(currentUser);
+        } else {
+            System.err.println("ProfileController initialized without user session. Redirecting to login.");
+            JobPortal.loadScene("login.fxml", "Job Portal - Login");
+        }
+    }
 
-            // Load profile picture if available
-            if (currentUser.getProfilePicturePath() != null) {
-                File profilePictureFile = new File(currentUser.getProfilePicturePath());
-                if (profilePictureFile.exists()) {
+    private void populateFields(User user) {
+        fullNameField.setText(user.getFullName());
+        emailField.setText(user.getEmail());
+        phoneField.setText(user.getPhone());
+        locationField.setText(user.getLocation());
+        roleField.setText(user.getRole());
+
+        // Load profile picture if available
+        if (user.getProfilePicturePath() != null) {
+            File profilePictureFile = new File(user.getProfilePicturePath());
+            if (profilePictureFile.exists()) {
+                try {
                     profileImageView.setImage(new Image(profilePictureFile.toURI().toString()));
+                } catch (Exception e) {
+                    System.err.println("Error loading profile image: " + e.getMessage());
                 }
             }
         }
@@ -51,6 +59,13 @@ public class ProfileController {
 
     @FXML
     private void handleUploadProfilePicture() {
+        User currentUser = SessionManager.getInstance().getCurrentUser();
+        if (currentUser == null) { 
+            showAlert("Error", "Session expired. Please log in again."); 
+            JobPortal.loadScene("login.fxml", "Job Portal - Login");
+            return; 
+        }
+        
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Profile Picture");
         fileChooser.getExtensionFilters().addAll(
@@ -102,65 +117,81 @@ public class ProfileController {
 
     @FXML
     private void handleSaveChanges() {
-        if (currentUser != null) {
-            String fullName = fullNameField.getText();
-            String phone = phoneField.getText();
-            String location = locationField.getText();
-            
-            // Validate input
-            if (fullName.trim().isEmpty()) {
-                showAlert("Error", "Full name cannot be empty");
-                return;
-            }
-            
-            if (!phone.isEmpty() && !phone.matches("\\d{10}")) {
-                showAlert("Error", "Phone number must be 10 digits");
-                return;
-            }
+        User currentUser = SessionManager.getInstance().getCurrentUser();
+        if (currentUser == null) { 
+            showAlert("Error", "Session expired. Please log in again."); 
+            JobPortal.loadScene("login.fxml", "Job Portal - Login");
+            return; 
+        }
+        
+        String fullName = fullNameField.getText();
+        String phone = phoneField.getText();
+        String location = locationField.getText();
+        
+        // Validate input
+        if (fullName.trim().isEmpty()) {
+            showAlert("Error", "Full name cannot be empty");
+            return;
+        }
+        
+        if (!phone.isEmpty() && !phone.matches("\\d{10}")) {
+            showAlert("Error", "Phone number must be 10 digits");
+            return;
+        }
 
-            // Create updated user object
-            User updatedUser = new User(
-                currentUser.getUsername(),
-                currentUser.getEmail(),
-                currentUser.getPassword(),
-                fullName,
-                phone,
-                location,
-                currentUser.getRole(),
-                currentUser.getProfilePicturePath()
-            );
+        // Create updated user object
+        User updatedUser = new User(
+            currentUser.getUsername(),
+            currentUser.getEmail(),
+            currentUser.getPassword(),
+            fullName,
+            phone,
+            location,
+            currentUser.getRole(),
+            currentUser.getProfilePicturePath()
+        );
 
-            if (userService.updateUser(updatedUser)) {
-                // Update session user
-                SessionManager.getInstance().setCurrentUser(updatedUser);
-                currentUser = updatedUser;
-                showAlert("Success", "Profile updated successfully!");
-            } else {
-                showAlert("Error", "Failed to update profile. Please try again.");
-            }
+        if (userService.updateUser(updatedUser)) {
+            SessionManager.getInstance().setCurrentUser(updatedUser);
+            showAlert("Success", "Profile updated successfully!");
+        } else {
+            showAlert("Error", "Failed to update profile. Please try again.");
         }
     }
 
     @FXML
     private void goToDashboard() {
+        User currentUser = SessionManager.getInstance().getCurrentUser();
         if (currentUser != null) {
-            switch (currentUser.getRole().toLowerCase()) {
+            String role = currentUser.getRole().toLowerCase();
+            String targetFxml = null;
+            String targetTitle = null;
+            switch (role) {
                 case "job seeker":
-                    JobPortal.loadScene("jobseeker_dashboard.fxml", "Job Seeker Dashboard");
+                    targetFxml = "jobseeker_dashboard.fxml";
+                    targetTitle = "Job Seeker Dashboard";
                     break;
-                case "employer":
-                    JobPortal.loadScene("employer_dashboard.fxml", "Employer Dashboard");
+                case "employer": 
+                    targetFxml = "employer_dashboard.fxml";
+                    targetTitle = "Employer Dashboard";
                     break;
                 case "recruiter":
-                    JobPortal.loadScene("recruiter_dashboard.fxml", "Recruiter Dashboard");
+                    targetFxml = "recruiter_dashboard.fxml";
+                    targetTitle = "Recruiter Dashboard";
+                    break;
+                case "admin":
+                    targetFxml = "admin_dashboard.fxml";
+                    targetTitle = "Admin Dashboard";
                     break;
                 default:
-                    System.err.println("Unknown role: " + currentUser.getRole());
-                    JobPortal.loadScene("dashboard.fxml", "Dashboard");
+                    System.err.println("Unknown role for dashboard navigation: " + currentUser.getRole());
+                    targetFxml = "login.fxml";
+                    targetTitle = "Job Portal - Login";
             }
+             JobPortal.loadScene(targetFxml, targetTitle);
         } else {
-            // Fallback to login if user is null
-            JobPortal.loadScene("login.fxml", "Login");
+            System.err.println("ProfileController: No user session found. Redirecting to login.");
+             JobPortal.loadScene("login.fxml", "Job Portal - Login");
         }
     }
 

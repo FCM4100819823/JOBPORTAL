@@ -3,11 +3,17 @@ package com.jobportal.controllers;
 import com.jobportal.main.JobPortal;
 import com.jobportal.models.User;
 import com.jobportal.services.UserService;
-import com.jobportal.utils.SessionManager;
 import com.jobportal.utils.PasswordUtil;
+import com.jobportal.utils.SessionManager;
+
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -19,6 +25,7 @@ public class LoginController {
     @FXML private VBox loginForm;
     @FXML private Hyperlink forgotPasswordLink;
     @FXML private BorderPane loginPane; // Changed from VBox to BorderPane
+    @FXML private Button signInButton;
 
     private final UserService userService = new UserService();
     
@@ -38,7 +45,7 @@ public class LoginController {
     
     @FXML
     private void goToRegister() {
-        JobPortal.loadScene("register.fxml", "Register");
+        JobPortal.loadScene("register.fxml", "Job Portal - Register");
     }
     
     @FXML
@@ -62,31 +69,31 @@ public class LoginController {
             if (user != null) {
                 boolean isPasswordValid = PasswordUtil.verifyPassword(password, user.getPassword());
                 if (isPasswordValid) {
-                    // Set the user in session manager
                     SessionManager.getInstance().setCurrentUser(user);
-                    
-                    String role = user.getRole();
-                    if (role != null) {
-                        switch (role.toLowerCase()) {
-                            case "job seeker":
-                                JobPortal.loadScene("jobseeker_dashboard.fxml", "Job Seeker Dashboard");
-                                break;
-                            case "employer":
-                                JobPortal.loadScene("employer_dashboard.fxml", "Employer Dashboard");
-                                break;
-                            case "recruiter":
-                                JobPortal.loadScene("recruiter_dashboard.fxml", "Recruiter Dashboard");
-                                break;
-                            case "admin": // Added admin role
-                                JobPortal.loadScene("admin_dashboard.fxml", "Admin Dashboard");
-                                break;
-                            default:
-                                JobPortal.loadScene("dashboard.fxml", "Job Portal Dashboard");
-                                break;
-                        }
-                    } else {
-                        JobPortal.loadScene("dashboard.fxml", "Job Portal Dashboard");
+                    String dashboardFxml = "";
+                    String dashboardTitle = "";
+                    switch (user.getRole().toLowerCase()) {
+                        case "admin":
+                            dashboardFxml = "admin_dashboard.fxml";
+                            dashboardTitle = "Admin Dashboard";
+                            break;
+                        case "job seeker":
+                            dashboardFxml = "jobseeker_dashboard.fxml";
+                            dashboardTitle = "Job Seeker Dashboard";
+                            break;
+                        case "employer":
+                            dashboardFxml = "employer_dashboard.fxml";
+                            dashboardTitle = "Employer Dashboard";
+                            break;
+                        case "recruiter":
+                            dashboardFxml = "recruiter_dashboard.fxml";
+                            dashboardTitle = "Recruiter Dashboard";
+                            break;
+                        default:
+                            showAlert("Login Error", "Unknown user role.");
+                            return;
                     }
+                    JobPortal.loadScene(dashboardFxml, dashboardTitle);
                 } else {
                     showError("Invalid password");
                 }
@@ -97,6 +104,14 @@ public class LoginController {
             showError("Login failed: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void handleLogout() {
+        // Clear the session
+        SessionManager.getInstance().clearSession();
+        // Navigate to the login page using standard loadScene
+        JobPortal.loadScene("login.fxml", "Job Portal - Login");
     }
     
     @FXML

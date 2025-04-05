@@ -1,17 +1,18 @@
 package com.jobportal.controllers;
 
+import java.util.List;
+
 import com.jobportal.main.JobPortal;
 import com.jobportal.models.Message;
 import com.jobportal.models.User;
 import com.jobportal.services.MessageService;
-import com.jobportal.utils.SessionManager;  // Added missing import
+import com.jobportal.utils.SessionManager;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-
-import java.util.List;
 
 public class MessagesController {
     @FXML private TextField recipientField;
@@ -19,21 +20,25 @@ public class MessagesController {
     @FXML private ListView<String> messageListView;
 
     private final MessageService messageService = new MessageService();
-    private static User currentUser;
-
-    public static void setCurrentUser(User user) {
-        currentUser = user;
-    }
 
     @FXML
     private void initialize() {
+        User currentUser = SessionManager.getInstance().getCurrentUser();
         if (currentUser != null) {
-            loadMessages();
+            loadMessages(currentUser);
+        } else {
+            System.err.println("MessagesController initialized without user session.");
         }
     }
 
     @FXML
     private void handleSendMessage() {
+        User currentUser = SessionManager.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            showAlert("Error", "Session expired. Please log in again.");
+            JobPortal.loadScene("login.fxml", "Job Portal - Login");
+            return;
+        }
         String recipient = recipientField.getText();
         String messageContent = messageField.getText();
 
@@ -56,13 +61,13 @@ public class MessagesController {
         if (messageService.sendMessage(message)) {
             showAlert("Success", "Message sent successfully!");
             messageField.clear();
-            loadMessages();
+            loadMessages(currentUser);
         } else {
             showAlert("Error", "Failed to send message. Please try again.");
         }
     }
 
-    private void loadMessages() {
+    private void loadMessages(User currentUser) {
         messageListView.getItems().clear();
         List<Message> messages = messageService.getMessagesByUser(currentUser.getEmail());
         if (messages.isEmpty()) {
@@ -79,20 +84,37 @@ public class MessagesController {
 
     @FXML
     private void goToDashboard() {
+        User currentUser = SessionManager.getInstance().getCurrentUser();
         if (currentUser != null) {
-            switch (currentUser.getRole().toLowerCase()) {
+            String role = currentUser.getRole().toLowerCase();
+            String targetFxml = null;
+            String targetTitle = null;
+            switch (role) {
                 case "job seeker":
-                    JobPortal.loadScene("jobseeker_dashboard.fxml", "Job Seeker Dashboard");
+                    targetFxml = "jobseeker_dashboard.fxml";
+                    targetTitle = "Job Seeker Dashboard";
                     break;
                 case "employer":
-                    JobPortal.loadScene("employer_dashboard.fxml", "Employer Dashboard");
+                    targetFxml = "employer_dashboard.fxml";
+                    targetTitle = "Employer Dashboard";
                     break;
                 case "recruiter":
-                    JobPortal.loadScene("recruiter_dashboard.fxml", "Recruiter Dashboard");
+                    targetFxml = "recruiter_dashboard.fxml";
+                    targetTitle = "Recruiter Dashboard";
+                    break;
+                case "admin":
+                    targetFxml = "admin_dashboard.fxml";
+                    targetTitle = "Admin Dashboard";
                     break;
                 default:
-                    System.err.println("Unknown role: " + currentUser.getRole());
+                    System.err.println("Unknown role for dashboard navigation: " + currentUser.getRole());
+                    targetFxml = "login.fxml";
+                    targetTitle = "Job Portal - Login";
             }
+            JobPortal.loadScene(targetFxml, targetTitle);
+        } else {
+            System.err.println("No user session found when trying to go back to dashboard. Redirecting to login.");
+            JobPortal.loadScene("login.fxml", "Job Portal - Login");
         }
     }
 

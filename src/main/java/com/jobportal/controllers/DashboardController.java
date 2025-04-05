@@ -1,9 +1,13 @@
 package com.jobportal.controllers;
 
+import java.util.List;
+
 import com.jobportal.main.JobPortal;
 import com.jobportal.models.Job;
 import com.jobportal.models.User;
 import com.jobportal.services.JobService;
+import com.jobportal.utils.SessionManager;
+
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
@@ -14,8 +18,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-
-import java.util.List;
 
 public class DashboardController {
     @FXML private ListView<String> jobListView; // For job seekers
@@ -94,24 +96,28 @@ public class DashboardController {
 
     @FXML
     private void handleLogout() {
-        // Clear current user
-        currentUser = null;
-        JobPortal.loadScene("login.fxml", "Job Portal - Login");
+        // Clear the session and navigate to the login page
+        System.out.println("Logging out...");
+        SessionManager.getInstance().clearSession();
+        JobPortal.loadScene("login.fxml", "Login");
     }
 
     @FXML
     private void viewProfile() {
-        ProfileController.setCurrentUser(currentUser);
         JobPortal.loadScene("profile.fxml", "My Profile");
     }
 
     @FXML
     private void viewJobs() {
-        showAlert("Jobs", "Job listings view will be implemented soon.");
+        // Navigate to the job listings page
+        System.out.println("Navigating to Job Listings...");
+        JobPortal.loadScene("job_listings.fxml", "Job Listings");
     }
 
     @FXML
     private void viewApplications() {
+        // Navigate to the applications page
+        System.out.println("Navigating to Applications...");
         JobPortal.loadScene("my_applications.fxml", "My Applications");
     }
 
@@ -200,5 +206,19 @@ public class DashboardController {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void goToProfile() {
+        // Navigate to the profile page
+        System.out.println("Navigating to Profile...");
+        JobPortal.loadScene("profile.fxml", "My Profile");
+    }
+
+    @FXML
+    private void goToDashboard() {
+        // Navigate back to the dashboard
+        System.out.println("Navigating to Dashboard...");
+        JobPortal.loadScene("dashboard.fxml", "Dashboard");
     }
 }

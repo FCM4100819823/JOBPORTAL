@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.jobportal.controllers.JobRequisitionsController"
+            stylesheets="@dashboard.css" styleClass="root-pane">
+    
+    <top>
+        <HBox alignment="CENTER_LEFT" styleClass="header-container" spacing="10">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Text text="Job Requisitions" styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Back to Dashboard" onAction="#goToDashboard" styleClass="secondary-button"/>
+        </HBox>
+    </top>
+    
+    <center>
+        <VBox styleClass="content-area" spacing="20">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+            
+            <!-- Search and Filter Controls -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <ComboBox fx:id="filterComboBox" promptText="Filter By Status" prefWidth="150"/>
+                <TextField fx:id="searchField" promptText="Search requisitions..." HBox.hgrow="ALWAYS"/>
+            </HBox>
+            
+            <!-- Action Buttons -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="Add Requisition" onAction="#handleAddRequisition" styleClass="primary-button"/>
+                <Button text="Edit" onAction="#handleEditRequisition" styleClass="secondary-button"/>
+                <Button text="Delete" onAction="#handleDeleteRequisition" styleClass="secondary-button"/>
+            </HBox>
+            
+            <!-- Requisitions Table -->
+            <TableView fx:id="requisitionsTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="titleColumn" text="Title" prefWidth="200"/>
+                    <TableColumn fx:id="companyColumn" text="Company" prefWidth="200"/>
+                    <TableColumn fx:id="locationColumn" text="Location" prefWidth="150"/>
+                    <TableColumn fx:id="statusColumn" text="Status" prefWidth="100"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane> 

@@ -125,9 +125,7 @@ public class JobSeekerDashboardController {
 
     @FXML
     private void handleLogout() {
-        // Clear the session
         SessionManager.getInstance().clearSession();
-        // Navigate back to login screen
         JobPortal.loadScene("login.fxml", "Job Portal - Login");
     }
 
@@ -270,37 +268,37 @@ public class JobSeekerDashboardController {
         showAlert("Job Saved", "You've saved \"" + selectedJob.getTitle() + "\" for later viewing.");
     }
 
-    // Add these navigation methods for sidebar buttons if they don't exist
+    // --- Sidebar Navigation Methods --- 
+
     @FXML
     private void navigateToDashboard() {
-        // Already on dashboard, refresh if needed
         JobPortal.loadScene("jobseeker_dashboard.fxml", "Job Portal - Dashboard");
     }
 
     @FXML
     private void navigateToProfile() {
-        viewProfile(); // Use existing method or implement new navigation
+        viewProfile();
     }
 
     @FXML
     private void navigateToApplications() {
-        viewApplications(); // Use existing method or implement new navigation
+        viewApplications();
     }
 
     @FXML
     private void navigateToMessages() {
-        viewMessages(); // Use existing method or implement new navigation
+        viewMessages();
     }
 
     @FXML
     private void navigateToSavedJobs() {
-        viewSavedJobs(); // Use existing method or implement new navigation
+        JobPortal.loadScene("saved_jobs.fxml", "Saved Jobs");
     }
 
     @FXML
     private void navigateToSettings() {
-        // Navigate to settings screen
-        showAlert("Settings", "Settings page will be available soon!");
+        JobPortal.loadScene("settings.fxml", "Settings");
     }
+
 }
 

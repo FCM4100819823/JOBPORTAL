@@ -1,16 +1,17 @@
 package com.jobportal.controllers;
 
+import java.util.List;
+
 import com.jobportal.main.JobPortal;
 import com.jobportal.models.Application;
 import com.jobportal.models.Job;
 import com.jobportal.services.ApplicationService;
 import com.jobportal.services.JobService;
 import com.jobportal.services.UserService;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
-
-import java.util.List;
 
 public class AdminDashboardController {
     @FXML private ListView<String> userListView;

@@ -10,8 +10,8 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.jobportal.controllers.RecruiterDashboardController"
-            prefHeight="800.0" prefWidth="1000.0"
-            stylesheets="@C:\Users\donko\Music\jobportal\src\main\resources\com\jobportal\jobportal\dashboard.css"
+            stylesheets="@dashboard.css"
+            prefHeight="800.0" prefWidth="1000.0">
             
     <!-- Top Header Bar -->
     <top>
