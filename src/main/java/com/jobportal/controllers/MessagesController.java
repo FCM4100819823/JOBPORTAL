@@ -1,128 +1,137 @@
 package com.jobportal.controllers;
 
+import java.net.URL;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import com.jobportal.main.JobPortal;
-import com.jobportal.models.Message;
 import com.jobportal.models.User;
 import com.jobportal.services.MessageService;
+import com.jobportal.services.MessageService.Message;
+import com.jobportal.utils.NotificationManager;
 import com.jobportal.utils.SessionManager;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
-public class MessagesController {
-    @FXML private TextField recipientField;
-    @FXML private TextArea messageField;
-    @FXML private ListView<String> messageListView;
+public class MessagesController implements Initializable {
+    @FXML private ListView<Message> messageListView;
+    @FXML private TextField searchField;
+    @FXML private Button backToDashboardButton;
+    @FXML private Button newMessageButton;
 
     private final MessageService messageService = new MessageService();
+    private final ObservableList<Message> messages = FXCollections.observableArrayList();
+    private User currentUser;
 
-    @FXML
-    private void initialize() {
-        User currentUser = SessionManager.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            loadMessages(currentUser);
-        } else {
-            System.err.println("MessagesController initialized without user session.");
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        if (messageListView == null) {
+            System.err.println("Error: messageListView not initialized");
+            return;
         }
-    }
 
-    @FXML
-    private void handleSendMessage() {
-        User currentUser = SessionManager.getInstance().getCurrentUser();
+        currentUser = SessionManager.getInstance().getCurrentUser();
         if (currentUser == null) {
-            showAlert("Error", "Session expired. Please log in again.");
-            JobPortal.loadScene("login.fxml", "Job Portal - Login");
-            return;
-        }
-        String recipient = recipientField.getText();
-        String messageContent = messageField.getText();
-
-        if (recipient.isEmpty() || messageContent.isEmpty()) {
-            showAlert("Error", "Recipient and message content cannot be empty.");
+            NotificationManager.showError("Error", "No user session found");
+            goToDashboard();
             return;
         }
 
-        if (messageContent.length() > 500) {
-            showAlert("Error", "Message content cannot exceed 500 characters.");
-            return;
-        }
-
-        if (!messageService.isRecipientValid(recipient)) {
-            showAlert("Error", "Recipient does not exist.");
-            return;
-        }
-
-        Message message = new Message(currentUser.getEmail(), recipient, messageContent);
-        if (messageService.sendMessage(message)) {
-            showAlert("Success", "Message sent successfully!");
-            messageField.clear();
-            loadMessages(currentUser);
-        } else {
-            showAlert("Error", "Failed to send message. Please try again.");
-        }
+        initializeMessageList();
+        setupSearchFunctionality();
     }
 
-    private void loadMessages(User currentUser) {
-        messageListView.getItems().clear();
-        List<Message> messages = messageService.getMessagesByUser(currentUser.getEmail());
-        if (messages.isEmpty()) {
-            messageListView.getItems().add("No messages found.");
-        } else {
-            for (Message message : messages) {
-                messageListView.getItems().add(
-                    (message.getSender().equals(currentUser.getEmail()) ? "You" : message.getSender()) +
-                    ": " + message.getContent()
-                );
-            }
+    private void initializeMessageList() {
+        if (messageListView == null) return;
+
+        messageListView.setItems(messages);
+        messageListView.setCellFactory(lv -> new MessageListCell());
+        
+        // Load messages for the current user
+        List<Message> userMessages = messageService.getMessagesByUser(currentUser.getEmail());
+        messages.addAll(userMessages);
+    }
+
+    private void setupSearchFunctionality() {
+        if (searchField == null || messageListView == null) return;
+
+        FilteredList<Message> filteredData = new FilteredList<>(messages, s -> true);
+        
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(message -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                
+                String lowerCaseFilter = newValue.toLowerCase();
+                return message.getSubject().toLowerCase().contains(lowerCaseFilter) ||
+                       message.getContent().toLowerCase().contains(lowerCaseFilter);
+            });
+        });
+
+        SortedList<Message> sortedData = new SortedList<>(filteredData);
+        sortedData.setComparator((m1, m2) -> m2.getDate().compareTo(m1.getDate()));
+        messageListView.setItems(sortedData);
+    }
+
+    @FXML
+    private void handleNewMessage() {
+        if (currentUser == null) {
+            NotificationManager.showError("Error", "No user session found");
+            return;
         }
+        JobPortal.loadScene("new_message.fxml", "New Message");
     }
 
     @FXML
     private void goToDashboard() {
-        User currentUser = SessionManager.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            String role = currentUser.getRole().toLowerCase();
-            String targetFxml = null;
-            String targetTitle = null;
-            switch (role) {
-                case "job seeker":
-                    targetFxml = "jobseeker_dashboard.fxml";
-                    targetTitle = "Job Seeker Dashboard";
-                    break;
-                case "employer":
-                    targetFxml = "employer_dashboard.fxml";
-                    targetTitle = "Employer Dashboard";
-                    break;
-                case "recruiter":
-                    targetFxml = "recruiter_dashboard.fxml";
-                    targetTitle = "Recruiter Dashboard";
-                    break;
-                case "admin":
-                    targetFxml = "admin_dashboard.fxml";
-                    targetTitle = "Admin Dashboard";
-                    break;
-                default:
-                    System.err.println("Unknown role for dashboard navigation: " + currentUser.getRole());
-                    targetFxml = "login.fxml";
-                    targetTitle = "Job Portal - Login";
-            }
-            JobPortal.loadScene(targetFxml, targetTitle);
-        } else {
-            System.err.println("No user session found when trying to go back to dashboard. Redirecting to login.");
-            JobPortal.loadScene("login.fxml", "Job Portal - Login");
+        if (currentUser == null) {
+            NotificationManager.showError("Error", "No user session found");
+            JobPortal.loadScene("login.fxml", "Login");
+            return;
+        }
+        
+        String role = currentUser.getRole().toLowerCase();
+        switch (role) {
+            case "jobseeker":
+                JobPortal.loadScene("jobseeker_dashboard.fxml", "Job Seeker Dashboard");
+                break;
+            case "employer":
+                JobPortal.loadScene("employer_dashboard.fxml", "Employer Dashboard");
+                break;
+            case "recruiter":
+                JobPortal.loadScene("recruiter_dashboard.fxml", "Recruiter Dashboard");
+                break;
+            case "admin":
+                JobPortal.loadScene("admin_dashboard.fxml", "Admin Dashboard");
+                break;
+            default:
+                NotificationManager.showError("Error", "Invalid user role: " + role);
+                JobPortal.loadScene("login.fxml", "Login");
+                break;
         }
     }
 
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+    private static class MessageListCell extends javafx.scene.control.ListCell<Message> {
+        @Override
+        protected void updateItem(Message message, boolean empty) {
+            super.updateItem(message, empty);
+            if (empty || message == null) {
+                setText(null);
+                setGraphic(null);
+                return;
+            }
+
+            setText(String.format("%s - %s", message.getSubject(), message.getSender()));
+            setStyle("-fx-text-fill: " + (message.isRead() ? "black" : "blue") + ";");
+        }
     }
 }

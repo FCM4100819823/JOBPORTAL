@@ -101,9 +101,30 @@ public class ClientsController {
             return;
         }
 
-        // TODO: Show edit dialog with client details
-        // For now, just show a message
-        showAlert("Info", "Edit functionality coming soon");
+        TextInputDialog dialog = new TextInputDialog(selected.getName());
+        dialog.setTitle("Edit Client");
+        dialog.setHeaderText("Edit Client Name");
+        dialog.setContentText("Enter new name:");
+
+        dialog.showAndWait().ifPresent(newName -> {
+            if (newName.trim().isEmpty()) {
+                showAlert("Error", "Client name cannot be empty");
+                return;
+            }
+
+            selected.setName(newName.trim());
+            
+            try {
+                if (clientService.updateClient(selected)) {
+                    showAlert("Success", "Client updated successfully");
+                    loadClients(); // Refresh the list
+                } else {
+                    showAlert("Error", "Failed to update client");
+                }
+            } catch (Exception e) {
+                showAlert("Error", "Failed to update client: " + e.getMessage());
+            }
+        });
     }
 
     @FXML

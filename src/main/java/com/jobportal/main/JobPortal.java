@@ -11,56 +11,63 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration; // For splash screen if needed
+import com.jobportal.models.User;
+import com.jobportal.utils.NotificationManager;
 
 public class JobPortal extends Application {
     private static Stage primaryStage;
+    private static User currentUser;
 
     @Override
     public void start(Stage stage) throws IOException {
-        primaryStage = stage; // Set the static primary stage HERE
-        
-        // --- Option: Re-integrate Splash Screen Logic --- 
-        // showSplashScreenAndThenLogin(); 
-        // --- OR --- 
-        // --- Direct Login Load --- 
+        if (stage == null) {
+            throw new IllegalArgumentException("Stage cannot be null");
+        }
+        primaryStage = stage;
         loadLoginScene();
     }
 
     // Helper to load login scene - ensures primaryStage is set first
     private void loadLoginScene() {
-        loadScene("login.fxml", "Job Portal - Login");
-        primaryStage.setMaximized(true);
-        primaryStage.show();
+        try {
+            loadScene("login.fxml", "Job Portal - Login");
+            if (primaryStage != null) {
+                primaryStage.setMaximized(true);
+                primaryStage.show();
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to load login scene: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     // Optional: Method to show a splash screen first
     private void showSplashScreenAndThenLogin() {
-        // Create splash screen content (similar to SplashScreen.java)
-        Label label = new Label("Welcome to Job Portal!");
-        label.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
-        StackPane splashRoot = new StackPane(label);
-        splashRoot.setStyle("-fx-background-color: #3498db;");
-        Scene splashScene = new Scene(splashRoot, 400, 300);
-        
-        // Configure the primary stage for the splash
-        primaryStage.setScene(splashScene);
-        primaryStage.setTitle("Loading Job Portal...");
-        // Optional: Undecorated splash window
-        // primaryStage.initStyle(StageStyle.UNDECORATED); 
-        primaryStage.setMaximized(false); // Don't maximize splash
-        primaryStage.setWidth(400);
-        primaryStage.setHeight(300);
-        primaryStage.centerOnScreen();
-        primaryStage.show();
+        try {
+            Label label = new Label("Welcome to Job Portal!");
+            label.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
+            StackPane splashRoot = new StackPane(label);
+            splashRoot.setStyle("-fx-background-color: #3498db;");
+            Scene splashScene = new Scene(splashRoot, 400, 300);
+            
+            if (primaryStage != null) {
+                primaryStage.setScene(splashScene);
+                primaryStage.setTitle("Loading Job Portal...");
+                primaryStage.setMaximized(false);
+                primaryStage.setWidth(400);
+                primaryStage.setHeight(300);
+                primaryStage.centerOnScreen();
+                primaryStage.show();
 
-        // Delay before switching to login scene on the SAME stage
-        PauseTransition delay = new PauseTransition(Duration.seconds(2)); // Shorter delay?
-        delay.setOnFinished(event -> {
-            // Configure stage back for main app
-            // primaryStage.initStyle(StageStyle.DECORATED); // Restore decorations if changed
-             loadLoginScene(); // Load login into the same stage
-        });
-        delay.play();
+                PauseTransition delay = new PauseTransition(Duration.seconds(2));
+                delay.setOnFinished(event -> loadLoginScene());
+                delay.play();
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to show splash screen: " + e.getMessage());
+            e.printStackTrace();
+            loadLoginScene(); // Fallback to direct login
+        }
     }
 
     /**
@@ -70,48 +77,58 @@ public class JobPortal extends Application {
      * @param title The title for the window.
      */
     public static void loadScene(String fxmlFileName, String title) {
+        if (fxmlFileName == null || fxmlFileName.isEmpty()) {
+            NotificationManager.showError("Error", "FXML file name cannot be null or empty.");
+            return;
+        }
+        
+        if (title == null || title.isEmpty()) {
+            NotificationManager.showError("Error", "Scene title cannot be null or empty.");
+            return;
+        }
+
         try {
             if (primaryStage == null) {
-                // This error should NOT happen now if start() runs correctly
-                System.err.println("FATAL Error: Primary stage is not set when loading scene: " + fxmlFileName);
-                return; 
-            }
-            if (fxmlFileName == null || fxmlFileName.isEmpty()) {
-                throw new IllegalArgumentException("FXML file name cannot be null or empty.");
+                NotificationManager.showError("Error", "Primary stage is not initialized.");
+                return;
             }
 
             String fxmlPath = "/com/jobportal/jobportal/" + fxmlFileName;
             FXMLLoader loader = new FXMLLoader(JobPortal.class.getResource(fxmlPath));
+            
             if (loader.getLocation() == null) {
-                 throw new IOException("Cannot find FXML file at path: " + fxmlPath);
+                NotificationManager.showError("Error", "Cannot find FXML file at path: " + fxmlPath);
+                return;
             }
+            
             Parent root = loader.load();
+            if (root == null) {
+                NotificationManager.showError("Error", "Failed to load FXML root element.");
+                return;
+            }
 
             primaryStage.setTitle(title);
             Scene scene = primaryStage.getScene();
+            
             if (scene == null) {
-                scene = new Scene(root); 
+                scene = new Scene(root);
                 primaryStage.setScene(scene);
             } else {
-                scene.setRoot(root); 
+                scene.setRoot(root);
             }
             
-            // Ensure stage is maximized (unless it's the login screen maybe?)
-            // Let's always maximize for now, simplicity.
             if (!primaryStage.isMaximized()) {
-                 primaryStage.setMaximized(true);
-                 primaryStage.centerOnScreen(); // Recenter after maximize
+                primaryStage.setMaximized(true);
+                primaryStage.centerOnScreen();
             }
+            
             primaryStage.show();
 
         } catch (IOException e) {
-            System.err.println("Failed to load FXML file: " + fxmlFileName);
+            NotificationManager.showError("Error", "Failed to load FXML file: " + fxmlFileName);
             e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            System.err.println("Error loading scene: " + e.getMessage());
-            e.printStackTrace();
-        } catch (Exception e) { 
-            System.err.println("An unexpected error occurred loading FXML: " + fxmlFileName);
+        } catch (Exception e) {
+            NotificationManager.showError("Error", "An unexpected error occurred: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -121,12 +138,21 @@ public class JobPortal extends Application {
             throw new IllegalArgumentException("FXML file name cannot be null or empty.");
         }
 
+        if (primaryStage == null) {
+            throw new IllegalStateException("Primary stage is not initialized.");
+        }
+
         String fxmlPath = "/com/jobportal/jobportal/" + fxmlFileName + ".fxml";
         FXMLLoader loader = new FXMLLoader(JobPortal.class.getResource(fxmlPath));
+        
         if (loader.getLocation() == null) {
             throw new IOException("Cannot find FXML file at path: " + fxmlPath);
         }
+        
         Parent root = loader.load();
+        if (root == null) {
+            throw new IOException("Failed to load FXML root element.");
+        }
 
         Scene scene = primaryStage.getScene();
         if (scene == null) {
@@ -139,5 +165,24 @@ public class JobPortal extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public static void setPrimaryStage(Stage stage) {
+        if (stage == null) {
+            throw new IllegalArgumentException("Stage cannot be null");
+        }
+        primaryStage = stage;
+    }
+
+    public static Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public static void setCurrentUser(User user) {
+        currentUser = user;
+    }
+
+    public static User getCurrentUser() {
+        return currentUser;
     }
 }

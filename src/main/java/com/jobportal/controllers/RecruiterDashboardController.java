@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import com.jobportal.main.JobPortal;
+import com.jobportal.models.Candidate;
 import com.jobportal.services.CandidateService;
 import com.jobportal.services.ClientService;
 import com.jobportal.services.JobRequisitionService;
@@ -29,25 +30,22 @@ public class RecruiterDashboardController implements Initializable {
     private ComboBox<String> filterComboBox;
     
     @FXML
-    private TableView<?> candidatesTableView;
+    private TableView<Candidate> candidatesTableView;
     
     @FXML
-    private TableColumn<?, ?> nameColumn;
+    private TableColumn<Candidate, String> nameColumn;
     
     @FXML
-    private TableColumn<?, ?> skillsColumn;
+    private TableColumn<Candidate, String> skillsColumn;
     
     @FXML
-    private TableColumn<?, ?> experienceColumn;
+    private TableColumn<Candidate, Integer> experienceColumn;
     
     @FXML
-    private TableColumn<?, ?> locationColumn;
+    private TableColumn<Candidate, String> locationColumn;
     
     @FXML
-    private TableColumn<?, ?> statusColumn;
-    
-    @FXML
-    private TableColumn<?, ?> actionsColumn;
+    private TableColumn<Candidate, String> statusColumn;
     
     private final ClientService clientService = new ClientService();
     private final CandidateService candidateService = new CandidateService();

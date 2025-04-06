@@ -24,7 +24,7 @@
     <center>
         <ScrollPane fitToWidth="true" styleClass="content-area">
             <VBox spacing="20" styleClass="card" alignment="CENTER">
-                 <padding><Insets value="25"/></padding>
+                 <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
                 
                 <ImageView fx:id="profileImageView" fitWidth="120" fitHeight="120" preserveRatio="true" styleClass="profile-circle"/>
                 <Button text="Upload Profile Picture" onAction="#handleUploadProfilePicture" styleClass="secondary-button"/>

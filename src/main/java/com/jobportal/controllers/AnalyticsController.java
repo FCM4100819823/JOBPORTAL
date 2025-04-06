@@ -6,6 +6,9 @@ import com.jobportal.services.JobService;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
+import com.jobportal.utils.SessionManager;
+import com.jobportal.utils.NotificationManager;
+import com.jobportal.models.User;
 
 public class AnalyticsController {
     @FXML private PieChart jobApplicationsChart;
@@ -39,6 +42,31 @@ public class AnalyticsController {
 
     @FXML
     private void goToDashboard() {
-        JobPortal.loadScene("dashboard.fxml", "Dashboard");
+        User currentUser = SessionManager.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            NotificationManager.showError("Error", "No user session found");
+            JobPortal.loadScene("login.fxml", "Login");
+            return;
+        }
+        
+        String role = currentUser.getRole().toLowerCase();
+        switch (role) {
+            case "jobseeker":
+                JobPortal.loadScene("jobseeker_dashboard.fxml", "Job Seeker Dashboard");
+                break;
+            case "employer":
+                JobPortal.loadScene("employer_dashboard.fxml", "Employer Dashboard");
+                break;
+            case "recruiter":
+                JobPortal.loadScene("recruiter_dashboard.fxml", "Recruiter Dashboard");
+                break;
+            case "admin":
+                JobPortal.loadScene("admin_dashboard.fxml", "Admin Dashboard");
+                break;
+            default:
+                NotificationManager.showError("Error", "Invalid user role: " + role);
+                JobPortal.loadScene("login.fxml", "Login");
+                break;
+        }
     }
 }

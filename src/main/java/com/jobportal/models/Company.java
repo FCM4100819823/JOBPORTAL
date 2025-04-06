@@ -5,6 +5,7 @@ import java.util.Date;
 public class Company {
     private String id;
     private String name;
+    private String email;
     private String industry;
     private String description;
     private String website;
@@ -24,9 +25,10 @@ public class Company {
         this.updatedAt = new Date();
     }
 
-    public Company(String name, String industry, String description, String website, 
+    public Company(String name, String email, String industry, String description, String website, 
                   String location, String size, String foundedYear, String employerEmail) {
         this.name = name;
+        this.email = email;
         this.industry = industry;
         this.description = description;
         this.website = website;
@@ -52,6 +54,14 @@ public class Company {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getIndustry() {

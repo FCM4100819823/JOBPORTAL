@@ -2,20 +2,26 @@ package com.jobportal.controllers;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 import com.jobportal.main.JobPortal;
+import com.jobportal.models.Job;
 import com.jobportal.utils.SessionManager;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 public class EmployerDashboardController implements Initializable {
@@ -27,22 +33,25 @@ public class EmployerDashboardController implements Initializable {
     private ComboBox<String> filterComboBox;
     
     @FXML
-    private TableView<?> jobsTableView;
+    private TableView<Job> jobsTable;
     
     @FXML
-    private TableColumn<?, ?> titleColumn;
+    private TableColumn<Job, String> jobTitleColumn;
     
     @FXML
-    private TableColumn<?, ?> locationColumn;
+    private TableColumn<Job, String> departmentColumn;
     
     @FXML
-    private TableColumn<?, ?> dateColumn;
+    private TableColumn<Job, String> locationColumn;
     
     @FXML
-    private TableColumn<?, ?> applicantsColumn;
+    private TableColumn<Job, LocalDate> postingDateColumn;
     
     @FXML
-    private TableColumn<?, ?> statusColumn;
+    private TableColumn<Job, String> statusColumn;
+    
+    @FXML
+    private TableColumn<Job, Integer> applicationsColumn;
     
     @FXML
     private TableColumn<?, ?> actionsColumn;
@@ -140,8 +149,78 @@ public class EmployerDashboardController implements Initializable {
     }
 
     private void setupTableColumns() {
-        // This would be implemented to display actual job data
-        // For now, it's just a placeholder
+        // Set up job title column
+        jobTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+        
+        // Set up department column
+        departmentColumn.setCellValueFactory(new PropertyValueFactory<>("company"));
+        
+        // Set up location column
+        locationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
+        
+        // Set up posting date column
+        postingDateColumn.setCellValueFactory(new PropertyValueFactory<>("postingDate"));
+        postingDateColumn.setCellFactory(column -> {
+            return new TableCell<Job, LocalDate>() {
+                @Override
+                protected void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    if (empty || date == null) {
+                        setText(null);
+                    } else {
+                        setText(date.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+                    }
+                }
+            };
+        });
+        
+        // Set up status column
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        statusColumn.setCellFactory(column -> {
+            return new TableCell<Job, String>() {
+                @Override
+                protected void updateItem(String status, boolean empty) {
+                    super.updateItem(status, empty);
+                    if (empty || status == null) {
+                        setText(null);
+                        setGraphic(null);
+                    } else {
+                        setText(status);
+                        setStyle("-fx-text-fill: " + getStatusColor(status));
+                    }
+                }
+            };
+        });
+        
+        // Set up applications column to show number of applications
+        applicationsColumn.setCellValueFactory(cellData -> {
+            // Since Job doesn't have getApplicationCount, use a default value
+            return new SimpleIntegerProperty(0).asObject();
+        });
+        
+        // Enable sorting
+        jobsTable.getSortOrder().add(postingDateColumn);
+        postingDateColumn.setSortType(TableColumn.SortType.DESCENDING);
+    }
+
+    /**
+     * Returns a color code based on the job status
+     * @param status The job status
+     * @return A color code in CSS format
+     */
+    private String getStatusColor(String status) {
+        if (status == null) return "black";
+        
+        switch (status.toLowerCase()) {
+            case "active":
+                return "green";
+            case "expired":
+                return "red";
+            case "draft":
+                return "orange";
+            default:
+                return "black";
+        }
     }
 
     private void loadScene(String fxmlPath, String title) {

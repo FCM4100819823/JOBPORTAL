@@ -24,20 +24,24 @@ public class LoginController {
     @FXML private Label errorMessage;
     @FXML private VBox loginForm;
     @FXML private Hyperlink forgotPasswordLink;
-    @FXML private BorderPane loginPane; // Changed from VBox to BorderPane
+    @FXML private BorderPane loginPane;
     @FXML private Button signInButton;
 
     private final UserService userService = new UserService();
     
     @FXML
     private void initialize() {
+        if (loginForm == null) {
+            System.err.println("Warning: loginForm is null in LoginController.initialize()");
+            return;
+        }
+        
         // Clear any existing session
         SessionManager.getInstance().clearSession();
         
-        System.out.println("LoginController initialized with emailField=" + emailField);
         applyFadeIn(loginForm);
         
-        // If we have the forgot password link in FXML
+        // Initialize forgot password link if present
         if (forgotPasswordLink != null) {
             forgotPasswordLink.setOnAction(event -> handleForgotPassword());
         }
@@ -50,68 +54,52 @@ public class LoginController {
     
     @FXML
     private void handleLogin() {
-        try {
-            if (emailField == null) {
-                System.err.println("emailField is null in LoginController.handleLogin()");
-                showError("Internal error: Email field not initialized");
-                return;
-            }
-            
-            String email = emailField.getText();
-            String password = passwordField.getText();
-            
-            if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
-                showError("Please enter both email and password");
-                return;
-            }
-            
-            User user = userService.getUserByEmail(email);
-            if (user != null) {
-                boolean isPasswordValid = PasswordUtil.verifyPassword(password, user.getPassword());
-                if (isPasswordValid) {
-                    SessionManager.getInstance().setCurrentUser(user);
-                    String dashboardFxml = "";
-                    String dashboardTitle = "";
-                    switch (user.getRole().toLowerCase()) {
-                        case "admin":
-                            dashboardFxml = "admin_dashboard.fxml";
-                            dashboardTitle = "Admin Dashboard";
-                            break;
-                        case "job seeker":
-                            dashboardFxml = "jobseeker_dashboard.fxml";
-                            dashboardTitle = "Job Seeker Dashboard";
-                            break;
-                        case "employer":
-                            dashboardFxml = "employer_dashboard.fxml";
-                            dashboardTitle = "Employer Dashboard";
-                            break;
-                        case "recruiter":
-                            dashboardFxml = "recruiter_dashboard.fxml";
-                            dashboardTitle = "Recruiter Dashboard";
-                            break;
-                        default:
-                            showAlert("Login Error", "Unknown user role.");
-                            return;
-                    }
-                    JobPortal.loadScene(dashboardFxml, dashboardTitle);
-                } else {
-                    showError("Invalid password");
-                }
-            } else {
-                showError("User not found: " + email);
-            }
-        } catch (Exception e) {
-            showError("Login failed: " + e.getMessage());
-            e.printStackTrace();
+        if (emailField == null || passwordField == null) {
+            showError("Internal error: Form fields not initialized");
+            return;
         }
-    }
-
-    @FXML
-    private void handleLogout() {
-        // Clear the session
-        SessionManager.getInstance().clearSession();
-        // Navigate to the login page using standard loadScene
-        JobPortal.loadScene("login.fxml", "Job Portal - Login");
+        
+        String email = emailField.getText().trim();
+        String password = passwordField.getText();
+        
+        if (email.isEmpty() || password.isEmpty()) {
+            showError("Please enter both email and password");
+            return;
+        }
+        
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            showError("Invalid email or password");
+            return;
+        }
+        
+        if (!PasswordUtil.verifyPassword(password, user.getPassword())) {
+            showError("Invalid email or password");
+            return;
+        }
+        
+        // Store user in session
+        SessionManager.getInstance().setCurrentUser(user);
+        
+        // Redirect based on user role
+        String role = user.getRole().toLowerCase();
+        switch (role) {
+            case "jobseeker":
+                JobPortal.loadScene("jobseeker_dashboard.fxml", "Job Seeker Dashboard");
+                break;
+            case "employer":
+                JobPortal.loadScene("employer_dashboard.fxml", "Employer Dashboard");
+                break;
+            case "recruiter":
+                JobPortal.loadScene("recruiter_dashboard.fxml", "Recruiter Dashboard");
+                break;
+            case "admin":
+                JobPortal.loadScene("admin_dashboard.fxml", "Admin Dashboard");
+                break;
+            default:
+                showError("Invalid user role");
+                break;
+        }
     }
     
     @FXML
@@ -122,17 +110,22 @@ public class LoginController {
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
+        alert.setHeaderText(null);
         alert.setContentText(content);
-        alert.show();
+        alert.showAndWait();
     }
     
     private void showError(String message) {
-        errorMessage.setText(message);
-        errorMessage.setVisible(true);
-        errorMessage.setManaged(true);
+        if (errorMessage != null) {
+            errorMessage.setText(message);
+            errorMessage.setVisible(true);
+            errorMessage.setManaged(true);
+        }
     }
 
     private void applyFadeIn(VBox node) {
+        if (node == null) return;
+        
         FadeTransition fadeIn = new FadeTransition(Duration.millis(1000), node);
         fadeIn.setFromValue(0);
         fadeIn.setToValue(1);

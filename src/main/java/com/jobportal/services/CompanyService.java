@@ -36,10 +36,23 @@ public class CompanyService {
         return doc != null ? documentToCompany(doc) : null;
     }
 
+    public Company getCompanyByEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("Company email is required");
+        }
+
+        Document doc = collection.find(
+            Filters.eq("email", email)
+        ).first();
+        
+        return doc != null ? documentToCompany(doc) : null;
+    }
+
     public boolean addCompany(Company company) {
         try {
             Document doc = new Document()
                 .append("name", company.getName())
+                .append("email", company.getEmail())
                 .append("industry", company.getIndustry())
                 .append("description", company.getDescription())
                 .append("website", company.getWebsite())
@@ -71,6 +84,7 @@ public class CompanyService {
                 Filters.eq("_id", new ObjectId(company.getId())),
                 Updates.combine(
                     Updates.set("name", company.getName()),
+                    Updates.set("email", company.getEmail()),
                     Updates.set("industry", company.getIndustry()),
                     Updates.set("description", company.getDescription()),
                     Updates.set("website", company.getWebsite()),
@@ -105,6 +119,7 @@ public class CompanyService {
         Company company = new Company();
         company.setId(doc.getObjectId("_id").toString());
         company.setName(doc.getString("name"));
+        company.setEmail(doc.getString("email"));
         company.setIndustry(doc.getString("industry"));
         company.setDescription(doc.getString("description"));
         company.setWebsite(doc.getString("website"));

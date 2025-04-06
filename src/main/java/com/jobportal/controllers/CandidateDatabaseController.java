@@ -119,7 +119,6 @@ public class CandidateDatabaseController {
             return;
         }
         
-        // TODO: Implement candidate details view
         showAlert("Candidate Details", 
             "Name: " + selected.getName() + "\n" +
             "Email: " + selected.getEmail() + "\n" +

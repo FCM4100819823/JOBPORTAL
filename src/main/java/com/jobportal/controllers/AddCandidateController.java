@@ -4,18 +4,21 @@ import com.jobportal.main.JobPortal;
 import com.jobportal.models.Candidate;
 import com.jobportal.models.User;
 import com.jobportal.services.CandidateService;
+import com.jobportal.utils.NotificationManager;
 import com.jobportal.utils.SessionManager;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 
-public class AddCandidateController {
+public class AddCandidateController implements Initializable {
 
     @FXML private TextField nameField;
     @FXML private TextField emailField;
@@ -28,52 +31,58 @@ public class AddCandidateController {
     @FXML private Button saveButton;
     @FXML private Button backButton;
 
-    private CandidateService candidateService = new CandidateService();
+    private final CandidateService candidateService = new CandidateService();
 
-    @FXML
-    private void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         // Check session on initialization
         if (!checkSession()) return;
-        // Any initial setup for the form can go here
+        
+        // Set up button handlers
+        if (saveButton != null) {
+            saveButton.setOnAction(e -> handleSaveCandidate());
+        }
+        
+        if (backButton != null) {
+            backButton.setOnAction(e -> goToDashboard());
+        }
     }
 
     @FXML
     private void handleSaveCandidate() {
         if (!checkSession()) return;
+        
         User currentUser = SessionManager.getInstance().getCurrentUser();
-        if (currentUser == null) return;
+        if (currentUser == null) {
+            NotificationManager.showError("Error", "User session not found");
+            return;
+        }
 
-        // --- Basic Validation --- 
-        String name = nameField.getText();
-        String email = emailField.getText();
-        String skillsString = skillsArea.getText();
-        if (name == null || name.trim().isEmpty()) {
-            showAlert("Validation Error", "Candidate name cannot be empty.");
+        // Validate required fields
+        if (!validateFields()) {
             return;
         }
-        if (email == null || email.trim().isEmpty() || !email.contains("@")) { // Simple email check
-            showAlert("Validation Error", "Please enter a valid email address.");
-            return;
-        }
-        if (skillsString == null || skillsString.trim().isEmpty()) {
-            showAlert("Validation Error", "Skills cannot be empty.");
-            return;
-        }
+        
+        // Get form data
+        String name = nameField.getText().trim();
+        String email = emailField.getText().trim();
+        String skillsString = skillsArea.getText().trim();
         int experience = 0;
+        
         try {
             if (experienceField.getText() != null && !experienceField.getText().trim().isEmpty()) {
                 experience = Integer.parseInt(experienceField.getText().trim());
             }
         } catch (NumberFormatException e) {
-             showAlert("Validation Error", "Years of experience must be a valid number.");
+            NotificationManager.showError("Validation Error", "Years of experience must be a valid number.");
             return;
         }
         
-        // --- Convert skills string to list ---
+        // Convert skills string to list
         List<String> skills = Arrays.asList(skillsString.split(","));
         skills.replaceAll(String::trim);
 
-        // --- Create Candidate Object ---
+        // Create Candidate Object
         Candidate newCandidate = new Candidate(
             name,
             email,
@@ -86,20 +95,48 @@ public class AddCandidateController {
         newCandidate.setNotes(notesArea.getText() != null ? notesArea.getText().trim() : "");
         newCandidate.setStatus("New");
 
-        // --- Call Service ---
+        // Call Service
         try {
             boolean success = candidateService.addCandidate(newCandidate);
 
             if (success) {
-                showAlert("Success", "Candidate '" + name + "' added successfully!");
+                NotificationManager.showNotification("Success", "Candidate '" + name + "' added successfully!");
                 clearFields();
             } else {
-                showAlert("Error", "Failed to add candidate. Please check the details or logs and try again.");
+                NotificationManager.showError("Error", "Failed to add candidate. Please check the details and try again.");
             }
         } catch (Exception e) {
-            showAlert("Error", "An unexpected error occurred: " + e.getMessage());
+            NotificationManager.showError("Error", "An unexpected error occurred: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private boolean validateFields() {
+        if (nameField == null || emailField == null || skillsArea == null) {
+            NotificationManager.showError("Error", "Required form fields not initialized");
+            return false;
+        }
+        
+        String name = nameField.getText();
+        String email = emailField.getText();
+        String skillsString = skillsArea.getText();
+        
+        if (name == null || name.trim().isEmpty()) {
+            NotificationManager.showError("Validation Error", "Candidate name cannot be empty.");
+            return false;
+        }
+        
+        if (email == null || email.trim().isEmpty() || !email.contains("@")) {
+            NotificationManager.showError("Validation Error", "Please enter a valid email address.");
+            return false;
+        }
+        
+        if (skillsString == null || skillsString.trim().isEmpty()) {
+            NotificationManager.showError("Validation Error", "Skills cannot be empty.");
+            return false;
+        }
+        
+        return true;
     }
 
     @FXML
@@ -122,23 +159,15 @@ public class AddCandidateController {
         }
         return true;
     }
-
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
     
     private void clearFields() {
-        nameField.clear();
-        emailField.clear();
-        phoneField.clear();
-        locationField.clear();
-        currentJobTitleField.clear();
-        experienceField.clear();
-        skillsArea.clear();
-        notesArea.clear();
+        if (nameField != null) nameField.clear();
+        if (emailField != null) emailField.clear();
+        if (phoneField != null) phoneField.clear();
+        if (locationField != null) locationField.clear();
+        if (currentJobTitleField != null) currentJobTitleField.clear();
+        if (experienceField != null) experienceField.clear();
+        if (skillsArea != null) skillsArea.clear();
+        if (notesArea != null) notesArea.clear();
     }
 }

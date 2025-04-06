@@ -13,10 +13,23 @@ public class ForgotPasswordController {
     private final UserService userService = new UserService();
 
     @FXML
+    private void initialize() {
+        if (statusMessage != null) {
+            statusMessage.setVisible(false);
+            statusMessage.setManaged(false);
+        }
+    }
+
+    @FXML
     private void handleResetPassword() {
-        String email = emailField.getText();
+        if (emailField == null || statusMessage == null) {
+            System.err.println("Error: Required FXML components not initialized");
+            return;
+        }
+
+        String email = emailField.getText().trim();
         
-        if (email == null || email.isEmpty()) {
+        if (email.isEmpty()) {
             showMessage("Please enter your email address", false);
             return;
         }
@@ -31,6 +44,8 @@ public class ForgotPasswordController {
         // For this demo, we'll generate a temporary password
         if (userService.resetPassword(email)) {
             showMessage("A temporary password has been sent to your email", true);
+            // Clear the email field after successful reset
+            emailField.clear();
         } else {
             showMessage("Failed to reset password. Please try again.", false);
         }
@@ -42,6 +57,8 @@ public class ForgotPasswordController {
     }
 
     private void showMessage(String message, boolean success) {
+        if (statusMessage == null) return;
+        
         statusMessage.setText(message);
         statusMessage.setVisible(true);
         statusMessage.setManaged(true);

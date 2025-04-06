@@ -2,13 +2,33 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
+<BorderPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
-           fx:controller="com.jobportal.controllers.MessagesController">
-    <VBox spacing="10" alignment="CENTER">
-        <Label text="Messages Page" styleClass="header-label"/>
-        <ListView fx:id="messagesListView" VBox.vgrow="ALWAYS"/>
-        <Button text="Back to Dashboard" onAction="#goToDashboard"/>
-    </VBox>
-</AnchorPane>
+           fx:controller="com.jobportal.controllers.MessagesController"
+           stylesheets="@dashboard.css"
+           styleClass="root-pane">
+    
+    <top>
+        <HBox alignment="CENTER_LEFT" styleClass="header-container" spacing="10">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Label text="Messages" styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="backToDashboardButton" text="Back to Dashboard" onAction="#goToDashboard" styleClass="secondary-button"/>
+        </HBox>
+    </top>
+    
+    <center>
+        <VBox spacing="15" styleClass="content-area">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+            
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField" promptText="Search messages..." HBox.hgrow="ALWAYS"/>
+                <Button text="New Message" onAction="#handleNewMessage" styleClass="primary-button"/>
+            </HBox>
+            
+            <ListView fx:id="messageListView" VBox.vgrow="ALWAYS" styleClass="message-list"/>
+        </VBox>
+    </center>
+</BorderPane>
